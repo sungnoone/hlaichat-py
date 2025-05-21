@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat - 使用者儀表板</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../css/styles.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <!-- 頂部導航欄 -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <h1 class="text-xl font-semibold text-gray-800">AI Chat</h1>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <div class="relative" id="notification-dropdown">
+                        <button class="p-2 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none">
+                            <i class="fas fa-bell"></i>
+                            <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500"></span>
+                        </button>
+                    </div>
+                    <div class="relative ml-4" id="user-dropdown">
+                        <button class="flex items-center focus:outline-none" id="user-menu-button">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-medium">
+                                    <span>王</span>
+                                </div>
+                                <span class="ml-2 text-gray-700">王小明</span>
+                            </div>
+                            <i class="fas fa-chevron-down ml-1 text-gray-400"></i>
+                        </button>
+                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden" id="user-menu">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                                <i class="fas fa-user-circle mr-2 text-gray-500"></i>個人資料
+                            </a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition" id="show-change-password">
+                                <i class="fas fa-key mr-2 text-gray-500"></i>變更密碼
+                            </a>
+                            <div class="border-t border-gray-100"></div>
+                            <a href="login.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                                <i class="fas fa-sign-out-alt mr-2 text-gray-500"></i>登出
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要內容 -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- 歡迎區塊 -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-lg font-medium text-gray-900">歡迎回來，王小明</h2>
+                    <p class="text-sm text-gray-500">上次登入: 2025-05-08 15:30:42</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-gray-500">客服中心</div>
+                    <div class="text-gray-900 font-medium">(02) 2345-6789</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 標籤切換 -->
+        <div class="bg-white rounded-lg shadow-sm mb-6">
+            <div class="border-b border-gray-200">
+                <nav class="flex -mb-px" aria-label="Tabs">
+                    <button class="px-6 py-3 font-medium text-blue-600 border-b-2 border-blue-600 whitespace-nowrap flex items-center">
+                        <i class="fas fa-comment-dots mr-2"></i>我的聊天連結
+                    </button>
+                    <button class="px-6 py-3 font-medium text-gray-500 hover:text-gray-700 whitespace-nowrap flex items-center">
+                        <i class="fas fa-history mr-2"></i>使用紀錄
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- 聊天連結列表 -->
+        <div class="mb-6">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">可用聊天連結</h2>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 客服聊天機器人 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="p-4 border-b">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-medium text-gray-900">客服聊天機器人</h3>
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Hosted</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <p class="text-gray-500 text-sm mb-4 h-16 overflow-hidden">
+                            提供各種客服問題解答，包含產品資訊、訂單查詢、退換貨政策等。全天候服務，回覆即時準確。
+                        </p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-gray-500">最後更新: 2025-05-01</span>
+                            <a href="chat-demo.html" target="_blank" class="inline-flex items-center text-blue-600 hover:text-blue-800">
+                                <span>開啟聊天</span>
+                                <i class="fas fa-external-link-alt ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 技術支援 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="p-4 border-b">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-medium text-gray-900">技術支援</h3>
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Hosted</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <p class="text-gray-500 text-sm mb-4 h-16 overflow-hidden">
+                            專門解決產品使用問題、軟體安裝與設定、系統錯誤排除。提供詳細步驟說明與技術文件。
+                        </p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-gray-500">最後更新: 2025-04-28</span>
+                            <a href="chat-demo.html" target="_blank" class="inline-flex items-center text-blue-600 hover:text-blue-800">
+                                <span>開啟聊天</span>
+                                <i class="fas fa-external-link-alt ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 行銷助手 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="p-4 border-b">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-medium text-gray-900">行銷助手</h3>
+                            <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">Embedded</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <p class="text-gray-500 text-sm mb-4 h-16 overflow-hidden">
+                            協助行銷人員產生創意內容、社群貼文構想、電子郵件範本等。具備市場分析與競品比較功能。
+                        </p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-gray-500">最後更新: 2025-05-05</span>
+                            <a href="chat-demo.html" target="_blank" class="inline-flex items-center text-blue-600 hover:text-blue-800">
+                                <span>開啟聊天</span>
+                                <i class="fas fa-external-link-alt ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 產品詢問助手 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="p-4 border-b">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-medium text-gray-900">產品詢問助手</h3>
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Hosted</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <p class="text-gray-500 text-sm mb-4 h-16 overflow-hidden">
+                            提供公司所有產品的詳細資訊、規格、價格及比較。能夠依據客戶需求推薦最適合的產品選擇。
+                        </p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-gray-500">最後更新: 2025-05-07</span>
+                            <a href="chat-demo.html" target="_blank" class="inline-flex items-center text-blue-600 hover:text-blue-800">
+                                <span>開啟聊天</span>
+                                <i class="fas fa-external-link-alt ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 文件助手 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="p-4 border-b">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-medium text-gray-900">文件助手</h3>
+                            <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">Embedded</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <p class="text-gray-500 text-sm mb-4 h-16 overflow-hidden">
+                            協助撰寫各類商業文件，如報告、計畫書、提案等。提供範本與格式建議，改善寫作風格與文法。
+                        </p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-gray-500">最後更新: 2025-04-15</span>
+                            <a href="chat-demo.html" target="_blank" class="inline-flex items-center text-blue-600 hover:text-blue-800">
+                                <span>開啟聊天</span>
+                                <i class="fas fa-external-link-alt ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 頁腳 -->
+    <footer class="bg-white shadow-inner mt-8">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
+            <div class="flex justify-center mb-2">
+                <img src="images/hanlin-logo.png" alt="翰林雲端 Logo" class="h-8 w-auto">
+            </div>
+            <p>© 2025 AI Chat 使用者平台</p>
+        </div>
+    </footer>
+
+    <!-- 變更密碼對話框 -->
+    <div class="modal-backdrop hidden" id="password-modal-backdrop">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">變更密碼</h2>
+                <button class="modal-close" id="close-password-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">當前密碼</label>
+                    <input type="password" class="form-control" placeholder="請輸入當前密碼">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">新密碼</label>
+                    <input type="password" class="form-control" placeholder="請輸入新密碼">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">確認新密碼</label>
+                    <input type="password" class="form-control" placeholder="請再次輸入新密碼">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-password-change">取消</button>
+                <button class="btn btn-primary">確認變更</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 使用者下拉選單切換
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenu = document.getElementById('user-menu');
+        
+        userMenuButton.addEventListener('click', function() {
+            userMenu.classList.toggle('hidden');
+        });
+        
+        // 點擊頁面其他地方關閉選單
+        document.addEventListener('click', function(event) {
+            if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
+                userMenu.classList.add('hidden');
+            }
+        });
+        
+        // 密碼變更對話框
+        const passwordModal = document.getElementById('password-modal-backdrop');
+        const showPasswordModal = document.getElementById('show-change-password');
+        const closePasswordModal = document.getElementById('close-password-modal');
+        const cancelPasswordChange = document.getElementById('cancel-password-change');
+        
+        showPasswordModal.addEventListener('click', function() {
+            passwordModal.classList.remove('hidden');
+        });
+        
+        closePasswordModal.addEventListener('click', function() {
+            passwordModal.classList.add('hidden');
+        });
+        
+        cancelPasswordChange.addEventListener('click', function() {
+            passwordModal.classList.add('hidden');
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat 管理平台 - 使用者管理</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- 側邊導航欄 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="text-lg font-semibold text-white">AI Chat 管理平台</h1>
+                <button type="button" class="text-white">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-item">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>儀表板</span>
+                </a>
+                <a href="users.html" class="sidebar-item active">
+                    <i class="fas fa-users"></i>
+                    <span>使用者管理</span>
+                </a>
+                <a href="groups.html" class="sidebar-item">
+                    <i class="fas fa-user-friends"></i>
+                    <span>群組管理</span>
+                </a>
+                <a href="chat-links.html" class="sidebar-item">
+                    <i class="fas fa-link"></i>
+                    <span>聊天連結管理</span>
+                </a>
+                <a href="ad-config.html" class="sidebar-item">
+                    <i class="fas fa-network-wired"></i>
+                    <span>AD 設定</span>
+                </a>
+                <a href="logs.html" class="sidebar-item">
+                    <i class="fas fa-history"></i>
+                    <span>操作紀錄</span>
+                </a>
+            </div>
+            <div class="sidebar-footer mt-auto p-4 border-t border-gray-700 flex justify-center">
+                <img src="images/hanlin-logo.png" alt="翰林雲端 Logo" class="h-8 w-auto">
+            </div>
+        </div>
+
+        <!-- 主要內容區域 -->
+        <div class="main-content">
+            <!-- 頂部導航欄 -->
+            <div class="top-navbar">
+                <div class="breadcrumb">
+                    <span class="breadcrumb-item">首頁</span>
+                    <span class="breadcrumb-item active">使用者管理</span>
+                </div>
+                <div class="user-dropdown">
+                    <div class="user-dropdown-toggle">
+                        <div class="user-avatar">
+                            <span>管</span>
+                        </div>
+                        <div>
+                            <div class="font-medium">系統管理員</div>
+                            <div class="text-xs text-gray-500">admin</div>
+                        </div>
+                        <i class="fas fa-chevron-down ml-2 text-gray-500"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 頁面內容區域 -->
+            <div class="page-content">
+                <h1 class="text-2xl font-bold mb-4">使用者管理</h1>
+                
+                <!-- 功能區塊 -->
+                <div class="card mb-6">
+                    <div class="card-body p-4">
+                        <div class="flex flex-wrap justify-between items-center">
+                            <!-- 搜尋表單 -->
+                            <div class="flex mb-4 md:mb-0">
+                                <div class="relative mr-2">
+                                    <input type="text" class="form-control w-64" placeholder="搜尋使用者名稱...">
+                                    <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                </div>
+                                <select class="form-select w-32 mr-2">
+                                    <option value="">全部狀態</option>
+                                    <option value="active">啟用</option>
+                                    <option value="disabled">停用</option>
+                                </select>
+                                <select class="form-select w-32">
+                                    <option value="">全部來源</option>
+                                    <option value="platform">平台帳號</option>
+                                    <option value="ad">AD 帳號</option>
+                                </select>
+                            </div>
+                            <!-- 新增使用者按鈕 -->
+                            <div>
+                                <button class="btn btn-primary" id="show-add-user-modal">
+                                    <i class="fas fa-plus"></i>
+                                    <span>新增使用者</span>
+                                </button>
+                                <button class="btn btn-success ml-2" id="show-add-ad-user-modal">
+                                    <i class="fas fa-search"></i>
+                                    <span>搜尋 AD 使用者</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 使用者列表 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">使用者列表</h2>
+                        <span class="text-gray-500">共 42 筆資料</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>使用者名稱</th>
+                                        <th>姓名</th>
+                                        <th>單位</th>
+                                        <th>電子郵件</th>
+                                        <th>來源</th>
+                                        <th>狀態</th>
+                                        <th>群組</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>admin</td>
+                                        <td>系統管理員</td>
+                                        <td>IT 部門</td>
+                                        <td>admin@hanlin.com.tw</td>
+                                        <td>平台帳號</td>
+                                        <td><span class="badge badge-success">啟用</span></td>
+                                        <td>
+                                            <span class="badge bg-blue-100 text-blue-800">admins</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline mr-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>john.doe</td>
+                                        <td>李大明</td>
+                                        <td>行銷部</td>
+                                        <td>john.doe@hanlin.com.tw</td>
+                                        <td>平台帳號</td>
+                                        <td><span class="badge badge-success">啟用</span></td>
+                                        <td>
+                                            <span class="badge bg-blue-100 text-blue-800">users</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline mr-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>3</td>
+                                        <td>jane.smith</td>
+                                        <td>王小明</td>
+                                        <td>客服部</td>
+                                        <td>jane.smith@hanlin.com.tw</td>
+                                        <td>AD 帳號</td>
+                                        <td><span class="badge badge-success">啟用</span></td>
+                                        <td>
+                                            <span class="badge bg-blue-100 text-blue-800">support</span>
+                                            <span class="badge bg-blue-100 text-blue-800">users</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline mr-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>4</td>
+                                        <td>mark.chen</td>
+                                        <td>陳志明</td>
+                                        <td>銷售部</td>
+                                        <td>mark.chen@hanlin.com.tw</td>
+                                        <td>平台帳號</td>
+                                        <td><span class="badge badge-danger">停用</span></td>
+                                        <td>
+                                            <span class="badge bg-blue-100 text-blue-800">sales</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline mr-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>5</td>
+                                        <td>amy.wang</td>
+                                        <td>王美麗</td>
+                                        <td>人資部</td>
+                                        <td>amy.wang@hanlin.com.tw</td>
+                                        <td>AD 帳號</td>
+                                        <td><span class="badge badge-success">啟用</span></td>
+                                        <td>
+                                            <span class="badge bg-blue-100 text-blue-800">hr</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline mr-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <!-- 分頁 -->
+                        <div class="pagination">
+                            <span class="page-item disabled">
+                                <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="page-item active">1</span>
+                            <span class="page-item">2</span>
+                            <span class="page-item">3</span>
+                            <span class="page-item">4</span>
+                            <span class="page-item">5</span>
+                            <span class="page-item">
+                                <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 新增使用者彈窗 (稍後 JS 控制顯示) -->
+                <div class="modal-backdrop" id="add-user-modal" style="display: none;">
+                    <div class="modal">
+                        <div class="modal-header">
+                            <h3 class="modal-title">新增使用者</h3>
+                            <button type="button" class="modal-close" id="close-add-user-modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="add-user-form">
+                                <div class="form-group">
+                                    <label for="add-username" class="form-label">使用者名稱</label>
+                                    <input type="text" id="add-username" class="form-control" placeholder="請輸入使用者名稱">
+                                </div>
+                                <div class="form-group">
+                                    <label for="add-password" class="form-label">密碼</label>
+                                    <input type="password" id="add-password" class="form-control" placeholder="請輸入密碼">
+                                </div>
+                                <div class="form-group">
+                                    <label for="add-fullname" class="form-label">姓名</label>
+                                    <input type="text" id="add-fullname" class="form-control" placeholder="請輸入姓名">
+                                </div>
+                                <div class="form-group">
+                                    <label for="add-department" class="form-label">單位</label>
+                                    <input type="text" id="add-department" class="form-control" placeholder="請輸入單位">
+                                </div>
+                                <div class="form-group">
+                                    <label for="add-email" class="form-label">電子郵件</label>
+                                    <input type="email" id="add-email" class="form-control" placeholder="請輸入電子郵件">
+                                </div>
+                                <div class="form-group">
+                                    <label for="add-phone" class="form-label">電話</label>
+                                    <input type="text" id="add-phone" class="form-control" placeholder="請輸入電話">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">狀態</label>
+                                    <div class="mt-2">
+                                        <label class="inline-flex items-center mr-4">
+                                            <input type="radio" name="status" value="active" checked class="mr-2">
+                                            <span>啟用</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="radio" name="status" value="disabled" class="mr-2">
+                                            <span>停用</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="add-groups" class="form-label">群組</label>
+                                    <select id="add-groups" class="form-select" multiple>
+                                        <option value="admins">admins</option>
+                                        <option value="users">users</option>
+                                        <option value="support">support</option>
+                                        <option value="sales">sales</option>
+                                        <option value="hr">hr</option>
+                                    </select>
+                                    <span class="form-text">按住 Ctrl 鍵可選擇多個群組</span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="add-notes" class="form-label">備註</label>
+                                    <textarea id="add-notes" class="form-control" rows="3" placeholder="請輸入備註"></textarea>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline" id="cancel-add-user">取消</button>
+                            <button type="button" class="btn btn-primary" id="submit-add-user">儲存</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 搜尋 AD 使用者彈窗 (稍後 JS 控制顯示) -->
+                <div class="modal-backdrop" id="add-ad-user-modal" style="display: none;">
+                    <div class="modal">
+                        <div class="modal-header">
+                            <h3 class="modal-title">搜尋 AD 使用者</h3>
+                            <button type="button" class="modal-close" id="close-add-ad-user-modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="ad-search" class="form-label">搜尋條件</label>
+                                <div class="flex">
+                                    <input type="text" id="ad-search" class="form-control mr-2" placeholder="請輸入搜尋關鍵字">
+                                    <button type="button" class="btn btn-primary">
+                                        <i class="fas fa-search"></i>
+                                        <span>搜尋</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <div class="table-container">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>選擇</th>
+                                                <th>AD 使用者名稱</th>
+                                                <th>姓名</th>
+                                                <th>電子郵件</th>
+                                                <th>部門</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <input type="checkbox" class="form-check-input">
+                                                </td>
+                                                <td>david.lin</td>
+                                                <td>林大偉</td>
+                                                <td>david.lin@hanlin.com.tw</td>
+                                                <td>資訊部</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <input type="checkbox" class="form-check-input">
+                                                </td>
+                                                <td>sophia.chen</td>
+                                                <td>陳小美</td>
+                                                <td>sophia.chen@hanlin.com.tw</td>
+                                                <td>行銷部</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <input type="checkbox" class="form-check-input">
+                                                </td>
+                                                <td>peter.wang</td>
+                                                <td>王小明</td>
+                                                <td>peter.wang@hanlin.com.tw</td>
+                                                <td>財務部</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="form-group mt-4">
+                                <label for="ad-groups" class="form-label">指派群組</label>
+                                <select id="ad-groups" class="form-select" multiple>
+                                    <option value="admins">admins</option>
+                                    <option value="users">users</option>
+                                    <option value="support">support</option>
+                                    <option value="sales">sales</option>
+                                    <option value="hr">hr</option>
+                                </select>
+                                <span class="form-text">按住 Ctrl 鍵可選擇多個群組</span>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline" id="cancel-add-ad-user">取消</button>
+                            <button type="button" class="btn btn-primary" id="submit-add-ad-user">新增選擇的使用者</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 簡單的彈窗控制
+        document.getElementById('show-add-user-modal').addEventListener('click', function() {
+            document.getElementById('add-user-modal').style.display = 'flex';
+        });
+        
+        document.getElementById('close-add-user-modal').addEventListener('click', function() {
+            document.getElementById('add-user-modal').style.display = 'none';
+        });
+        
+        document.getElementById('cancel-add-user').addEventListener('click', function() {
+            document.getElementById('add-user-modal').style.display = 'none';
+        });
+        
+        document.getElementById('show-add-ad-user-modal').addEventListener('click', function() {
+            document.getElementById('add-ad-user-modal').style.display = 'flex';
+        });
+        
+        document.getElementById('close-add-ad-user-modal').addEventListener('click', function() {
+            document.getElementById('add-ad-user-modal').style.display = 'none';
+        });
+        
+        document.getElementById('cancel-add-ad-user').addEventListener('click', function() {
+            document.getElementById('add-ad-user-modal').style.display = 'none';
+        });
+    </script>
+</body>
+</html> 

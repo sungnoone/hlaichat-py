@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat 管理平台 - 聊天連結管理</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- 側邊導航欄 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="text-lg font-semibold text-white">AI Chat 管理平台</h1>
+                <button type="button" class="text-white">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-item">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>儀表板</span>
+                </a>
+                <a href="users.html" class="sidebar-item">
+                    <i class="fas fa-users"></i>
+                    <span>使用者管理</span>
+                </a>
+                <a href="groups.html" class="sidebar-item">
+                    <i class="fas fa-user-friends"></i>
+                    <span>群組管理</span>
+                </a>
+                <a href="chat-links.html" class="sidebar-item active">
+                    <i class="fas fa-link"></i>
+                    <span>聊天連結管理</span>
+                </a>
+                <a href="ad-config.html" class="sidebar-item">
+                    <i class="fas fa-network-wired"></i>
+                    <span>AD 設定</span>
+                </a>
+                <a href="logs.html" class="sidebar-item">
+                    <i class="fas fa-history"></i>
+                    <span>操作紀錄</span>
+                </a>
+            </div>
+            <div class="sidebar-footer mt-auto p-4 border-t border-gray-700 flex justify-center">
+                <img src="images/hanlin-logo.png" alt="翰林雲端 Logo" class="h-8 w-auto">
+            </div>
+        </div>
+
+        <!-- 主要內容區域 -->
+        <div class="main-content">
+            <!-- 頂部導航欄 -->
+            <div class="top-navbar">
+                <div class="breadcrumb">
+                    <span class="breadcrumb-item">首頁</span>
+                    <span class="breadcrumb-item active">聊天連結管理</span>
+                </div>
+                <div class="user-dropdown">
+                    <div class="user-dropdown-toggle">
+                        <div class="user-avatar">
+                            <span>管</span>
+                        </div>
+                        <div>
+                            <div class="font-medium">系統管理員</div>
+                            <div class="text-xs text-gray-500">admin</div>
+                        </div>
+                        <i class="fas fa-chevron-down ml-2 text-gray-500"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 頁面內容區域 -->
+            <div class="page-content">
+                <h1 class="text-2xl font-bold mb-4">聊天連結管理</h1>
+                
+                <!-- 功能區塊 -->
+                <div class="card mb-6">
+                    <div class="card-body p-4">
+                        <div class="flex flex-wrap justify-between items-center">
+                            <!-- 搜尋表單 -->
+                            <div class="flex mb-4 md:mb-0">
+                                <div class="relative mr-2">
+                                    <input type="text" class="form-control w-64" placeholder="搜尋連結名稱...">
+                                    <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                </div>
+                                <select class="form-select w-32">
+                                    <option value="">全部類型</option>
+                                    <option value="hosted">Hosted</option>
+                                    <option value="embedded">Embedded</option>
+                                </select>
+                            </div>
+                            <!-- 新增聊天連結按鈕 -->
+                            <div>
+                                <button class="btn btn-primary" id="show-add-link-modal">
+                                    <i class="fas fa-plus"></i>
+                                    <span>新增聊天連結</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 聊天連結列表 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">聊天連結列表</h2>
+                        <span class="text-gray-500">共 15 筆資料</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>連結名稱</th>
+                                        <th>類型</th>
+                                        <th>URL/嵌入代碼</th>
+                                        <th>可使用群組</th>
+                                        <th>建立日期</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>客服聊天機器人</td>
+                                        <td><span class="badge bg-blue-100 text-blue-800">Hosted</span></td>
+                                        <td class="max-w-xs truncate">https://n8n.hanlin.com.tw/chat/customer-service</td>
+                                        <td>
+                                            <span class="badge bg-gray-100 text-gray-800">admins</span>
+                                            <span class="badge bg-gray-100 text-gray-800">support</span>
+                                        </td>
+                                        <td>2025-05-01</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline mr-1" id="edit-link-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>銷售助手</td>
+                                        <td><span class="badge bg-purple-100 text-purple-800">Embedded</span></td>
+                                        <td class="max-w-xs truncate">&lt;iframe src="https://flowise.hanlin.com.tw/embed/sales" width="100%" height="500px"&gt;&lt;/iframe&gt;</td>
+                                        <td>
+                                            <span class="badge bg-gray-100 text-gray-800">admins</span>
+                                            <span class="badge bg-gray-100 text-gray-800">sales</span>
+                                        </td>
+                                        <td>2025-05-02</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline mr-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>3</td>
+                                        <td>問答系統</td>
+                                        <td><span class="badge bg-blue-100 text-blue-800">Hosted</span></td>
+                                        <td class="max-w-xs truncate">https://n8n.hanlin.com.tw/chat/qa-system</td>
+                                        <td>
+                                            <span class="badge bg-gray-100 text-gray-800">admins</span>
+                                            <span class="badge bg-gray-100 text-gray-800">users</span>
+                                        </td>
+                                        <td>2025-05-03</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline mr-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>4</td>
+                                        <td>HR 助手</td>
+                                        <td><span class="badge bg-purple-100 text-purple-800">Embedded</span></td>
+                                        <td class="max-w-xs truncate">&lt;iframe src="https://flowise.hanlin.com.tw/embed/hr-assistant" width="100%" height="500px"&gt;&lt;/iframe&gt;</td>
+                                        <td>
+                                            <span class="badge bg-gray-100 text-gray-800">admins</span>
+                                            <span class="badge bg-gray-100 text-gray-800">hr</span>
+                                        </td>
+                                        <td>2025-05-04</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline mr-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>5</td>
+                                        <td>技術支援</td>
+                                        <td><span class="badge bg-blue-100 text-blue-800">Hosted</span></td>
+                                        <td class="max-w-xs truncate">https://n8n.hanlin.com.tw/chat/tech-support</td>
+                                        <td>
+                                            <span class="badge bg-gray-100 text-gray-800">admins</span>
+                                            <span class="badge bg-gray-100 text-gray-800">support</span>
+                                        </td>
+                                        <td>2025-05-05</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline mr-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <!-- 分頁 -->
+                        <div class="pagination">
+                            <span class="page-item disabled">
+                                <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="page-item active">1</span>
+                            <span class="page-item">2</span>
+                            <span class="page-item">3</span>
+                            <span class="page-item">
+                                <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 聊天連結預覽 -->
+                <div class="card mt-6">
+                    <div class="card-header">
+                        <h2 class="card-title">聊天連結預覽</h2>
+                        <span class="text-gray-500">客服聊天機器人</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="rounded border p-4 bg-gray-50 flex items-center justify-center h-96">
+                            <div class="text-center">
+                                <img src="https://images.unsplash.com/photo-1531746790731-6c087fecd65a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1306&q=80" alt="聊天介面預覽" class="max-h-64 rounded shadow-md mx-auto">
+                                <p class="mt-4 text-gray-500">使用 Hosted 連結開啟此聊天介面</p>
+                                <a href="chat-demo.html" target="_blank" class="btn btn-primary mt-4">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    <span>開啟聊天連結</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 新增聊天連結彈窗 -->
+                <div class="modal-backdrop" id="add-link-modal" style="display: none;">
+                    <div class="modal">
+                        <div class="modal-header">
+                            <h3 class="modal-title">新增聊天連結</h3>
+                            <button type="button" class="modal-close" id="close-add-link-modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="add-link-form">
+                                <div class="form-group">
+                                    <label for="link-name" class="form-label">連結名稱</label>
+                                    <input type="text" id="link-name" class="form-control" placeholder="請輸入連結名稱">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">連結類型</label>
+                                    <div class="mt-2">
+                                        <label class="inline-flex items-center mr-4">
+                                            <input type="radio" name="link_type" value="hosted" checked class="mr-2" id="type-hosted">
+                                            <span>Hosted Chat (完整網址)</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="radio" name="link_type" value="embedded" class="mr-2" id="type-embedded">
+                                            <span>Embedded Chat (嵌入代碼)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group" id="url-input">
+                                    <label for="link-url" class="form-label">聊天連結網址</label>
+                                    <input type="text" id="link-url" class="form-control" placeholder="請輸入聊天連結網址">
+                                    <span class="form-text">例如：https://n8n.hanlin.com.tw/chat/xxx</span>
+                                </div>
+                                <div class="form-group" id="embed-input" style="display: none;">
+                                    <label for="link-embed" class="form-label">嵌入代碼</label>
+                                    <textarea id="link-embed" class="form-control" rows="4" placeholder="請輸入嵌入代碼"></textarea>
+                                    <span class="form-text">例如：&lt;iframe src="https://flowise.hanlin.com.tw/embed/xxx" width="100%" height="500px"&gt;&lt;/iframe&gt;</span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="link-description" class="form-label">描述</label>
+                                    <textarea id="link-description" class="form-control" rows="3" placeholder="請輸入連結描述"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="link-groups" class="form-label">可使用群組</label>
+                                    <select id="link-groups" class="form-select" multiple>
+                                        <option value="admins">admins</option>
+                                        <option value="users">users</option>
+                                        <option value="support">support</option>
+                                        <option value="sales">sales</option>
+                                        <option value="hr">hr</option>
+                                    </select>
+                                    <span class="form-text">按住 Ctrl 鍵可選擇多個群組</span>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline" id="cancel-add-link">取消</button>
+                            <button type="button" class="btn btn-primary" id="submit-add-link">儲存</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 編輯聊天連結彈窗 -->
+                <div class="modal-backdrop" id="edit-link-modal" style="display: none;">
+                    <div class="modal">
+                        <div class="modal-header">
+                            <h3 class="modal-title">編輯聊天連結</h3>
+                            <button type="button" class="modal-close" id="close-edit-link-modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="edit-link-form">
+                                <div class="form-group">
+                                    <label for="edit-link-name" class="form-label">連結名稱</label>
+                                    <input type="text" id="edit-link-name" class="form-control" value="客服聊天機器人">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">連結類型</label>
+                                    <div class="mt-2">
+                                        <label class="inline-flex items-center mr-4">
+                                            <input type="radio" name="edit_link_type" value="hosted" checked class="mr-2" id="edit-type-hosted">
+                                            <span>Hosted Chat (完整網址)</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="radio" name="edit_link_type" value="embedded" class="mr-2" id="edit-type-embedded">
+                                            <span>Embedded Chat (嵌入代碼)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group" id="edit-url-input">
+                                    <label for="edit-link-url" class="form-label">聊天連結網址</label>
+                                    <input type="text" id="edit-link-url" class="form-control" value="https://n8n.hanlin.com.tw/chat/customer-service">
+                                </div>
+                                <div class="form-group" id="edit-embed-input" style="display: none;">
+                                    <label for="edit-link-embed" class="form-label">嵌入代碼</label>
+                                    <textarea id="edit-link-embed" class="form-control" rows="4"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit-link-description" class="form-label">描述</label>
+                                    <textarea id="edit-link-description" class="form-control" rows="3">客服相關問題的聊天機器人</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit-link-groups" class="form-label">可使用群組</label>
+                                    <select id="edit-link-groups" class="form-select" multiple>
+                                        <option value="admins" selected>admins</option>
+                                        <option value="users">users</option>
+                                        <option value="support" selected>support</option>
+                                        <option value="sales">sales</option>
+                                        <option value="hr">hr</option>
+                                    </select>
+                                    <span class="form-text">按住 Ctrl 鍵可選擇多個群組</span>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline" id="cancel-edit-link">取消</button>
+                            <button type="button" class="btn btn-primary" id="submit-edit-link">儲存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 切換連結類型顯示對應的輸入框
+        document.getElementById('type-hosted').addEventListener('change', function() {
+            document.getElementById('url-input').style.display = 'block';
+            document.getElementById('embed-input').style.display = 'none';
+        });
+        
+        document.getElementById('type-embedded').addEventListener('change', function() {
+            document.getElementById('url-input').style.display = 'none';
+            document.getElementById('embed-input').style.display = 'block';
+        });
+        
+        document.getElementById('edit-type-hosted').addEventListener('change', function() {
+            document.getElementById('edit-url-input').style.display = 'block';
+            document.getElementById('edit-embed-input').style.display = 'none';
+        });
+        
+        document.getElementById('edit-type-embedded').addEventListener('change', function() {
+            document.getElementById('edit-url-input').style.display = 'none';
+            document.getElementById('edit-embed-input').style.display = 'block';
+        });
+        
+        // 彈窗控制
+        document.getElementById('show-add-link-modal').addEventListener('click', function() {
+            document.getElementById('add-link-modal').style.display = 'flex';
+        });
+        
+        document.getElementById('close-add-link-modal').addEventListener('click', function() {
+            document.getElementById('add-link-modal').style.display = 'none';
+        });
+        
+        document.getElementById('cancel-add-link').addEventListener('click', function() {
+            document.getElementById('add-link-modal').style.display = 'none';
+        });
+        
+        document.getElementById('edit-link-1').addEventListener('click', function() {
+            document.getElementById('edit-link-modal').style.display = 'flex';
+        });
+        
+        document.getElementById('close-edit-link-modal').addEventListener('click', function() {
+            document.getElementById('edit-link-modal').style.display = 'none';
+        });
+        
+        document.getElementById('cancel-edit-link').addEventListener('click', function() {
+            document.getElementById('edit-link-modal').style.display = 'none';
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat 管理平台 - 群組管理</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- 側邊導航欄 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="text-lg font-semibold text-white">AI Chat 管理平台</h1>
+                <button type="button" class="text-white">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-item">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>儀表板</span>
+                </a>
+                <a href="users.html" class="sidebar-item">
+                    <i class="fas fa-users"></i>
+                    <span>使用者管理</span>
+                </a>
+                <a href="groups.html" class="sidebar-item active">
+                    <i class="fas fa-user-friends"></i>
+                    <span>群組管理</span>
+                </a>
+                <a href="chat-links.html" class="sidebar-item">
+                    <i class="fas fa-link"></i>
+                    <span>聊天連結管理</span>
+                </a>
+                <a href="ad-config.html" class="sidebar-item">
+                    <i class="fas fa-network-wired"></i>
+                    <span>AD 設定</span>
+                </a>
+                <a href="logs.html" class="sidebar-item">
+                    <i class="fas fa-history"></i>
+                    <span>操作紀錄</span>
+                </a>
+            </div>
+            <div class="sidebar-footer mt-auto p-4 border-t border-gray-700 flex justify-center">
+                <img src="images/hanlin-logo.png" alt="翰林雲端 Logo" class="h-8 w-auto">
+            </div>
+        </div>
+
+        <!-- 主要內容區域 -->
+        <div class="main-content">
+            <!-- 頂部導航欄 -->
+            <div class="top-navbar">
+                <div class="breadcrumb">
+                    <span class="breadcrumb-item">首頁</span>
+                    <span class="breadcrumb-item active">群組管理</span>
+                </div>
+                <div class="user-dropdown">
+                    <div class="user-dropdown-toggle">
+                        <div class="user-avatar">
+                            <span>管</span>
+                        </div>
+                        <div>
+                            <div class="font-medium">系統管理員</div>
+                            <div class="text-xs text-gray-500">admin</div>
+                        </div>
+                        <i class="fas fa-chevron-down ml-2 text-gray-500"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 頁面內容區域 -->
+            <div class="page-content">
+                <h1 class="text-2xl font-bold mb-4">群組管理</h1>
+                
+                <!-- 群組列表和新增按鈕 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">群組列表</h2>
+                        <button class="btn btn-primary" id="show-add-group-modal">
+                            <i class="fas fa-plus"></i>
+                            <span>新增群組</span>
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>群組名稱</th>
+                                        <th>描述</th>
+                                        <th>登入權限</th>
+                                        <th>管理權限</th>
+                                        <th>聊天連結權限</th>
+                                        <th>使用者數量</th>
+                                        <th>聊天連結數量</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>admins</td>
+                                        <td>管理者群組</td>
+                                        <td><i class="fas fa-check text-green-500"></i></td>
+                                        <td><i class="fas fa-check text-green-500"></i></td>
+                                        <td><i class="fas fa-check text-green-500"></i></td>
+                                        <td>2</td>
+                                        <td>15</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline mr-1" id="edit-group-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>users</td>
+                                        <td>一般使用者群組</td>
+                                        <td><i class="fas fa-check text-green-500"></i></td>
+                                        <td><i class="fas fa-times text-red-500"></i></td>
+                                        <td><i class="fas fa-check text-green-500"></i></td>
+                                        <td>15</td>
+                                        <td>8</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline mr-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>3</td>
+                                        <td>support</td>
+                                        <td>客服群組</td>
+                                        <td><i class="fas fa-check text-green-500"></i></td>
+                                        <td><i class="fas fa-times text-red-500"></i></td>
+                                        <td><i class="fas fa-check text-green-500"></i></td>
+                                        <td>8</td>
+                                        <td>4</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline mr-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>4</td>
+                                        <td>sales</td>
+                                        <td>銷售群組</td>
+                                        <td><i class="fas fa-check text-green-500"></i></td>
+                                        <td><i class="fas fa-times text-red-500"></i></td>
+                                        <td><i class="fas fa-check text-green-500"></i></td>
+                                        <td>12</td>
+                                        <td>6</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline mr-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>5</td>
+                                        <td>hr</td>
+                                        <td>人資群組</td>
+                                        <td><i class="fas fa-check text-green-500"></i></td>
+                                        <td><i class="fas fa-times text-red-500"></i></td>
+                                        <td><i class="fas fa-check text-green-500"></i></td>
+                                        <td>5</td>
+                                        <td>3</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline mr-1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <!-- 分頁 -->
+                        <div class="pagination">
+                            <span class="page-item disabled">
+                                <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="page-item active">1</span>
+                            <span class="page-item">2</span>
+                            <span class="page-item">
+                                <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 群組明細 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                    <!-- 群組成員 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">群組成員</h2>
+                            <span class="text-gray-500">admins</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>使用者名稱</th>
+                                            <th>姓名</th>
+                                            <th>單位</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>admin</td>
+                                            <td>系統管理員</td>
+                                            <td>IT 部門</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline text-red-500">
+                                                    <i class="fas fa-user-minus"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>john.doe</td>
+                                            <td>李大明</td>
+                                            <td>行銷部</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline text-red-500">
+                                                    <i class="fas fa-user-minus"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-sm btn-primary">
+                                <i class="fas fa-user-plus"></i>
+                                <span>新增成員</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 群組聊天連結 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">群組聊天連結</h2>
+                            <span class="text-gray-500">admins</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>連結名稱</th>
+                                            <th>類型</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>客服聊天機器人</td>
+                                            <td><span class="badge bg-blue-100 text-blue-800">Hosted</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline text-red-500">
+                                                    <i class="fas fa-unlink"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>銷售助手</td>
+                                            <td><span class="badge bg-purple-100 text-purple-800">Embedded</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline text-red-500">
+                                                    <i class="fas fa-unlink"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>問答系統</td>
+                                            <td><span class="badge bg-blue-100 text-blue-800">Hosted</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline text-red-500">
+                                                    <i class="fas fa-unlink"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-sm btn-primary">
+                                <i class="fas fa-link"></i>
+                                <span>新增聊天連結</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 新增群組彈窗 -->
+                <div class="modal-backdrop" id="add-group-modal" style="display: none;">
+                    <div class="modal">
+                        <div class="modal-header">
+                            <h3 class="modal-title">新增群組</h3>
+                            <button type="button" class="modal-close" id="close-add-group-modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="add-group-form">
+                                <div class="form-group">
+                                    <label for="group-name" class="form-label">群組名稱</label>
+                                    <input type="text" id="group-name" class="form-control" placeholder="請輸入群組名稱">
+                                </div>
+                                <div class="form-group">
+                                    <label for="group-description" class="form-label">描述</label>
+                                    <textarea id="group-description" class="form-control" rows="3" placeholder="請輸入群組描述"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">權限設定</label>
+                                    <div class="mt-2">
+                                        <label class="flex items-center mb-2">
+                                            <input type="checkbox" name="can_login" value="1" checked class="mr-2 form-check-input">
+                                            <span>可以登入系統</span>
+                                        </label>
+                                        <label class="flex items-center mb-2">
+                                            <input type="checkbox" name="can_manage" value="1" class="mr-2 form-check-input">
+                                            <span>可以管理系統 (管理者權限)</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="can_use_links" value="1" checked class="mr-2 form-check-input">
+                                            <span>可以使用聊天連結</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline" id="cancel-add-group">取消</button>
+                            <button type="button" class="btn btn-primary" id="submit-add-group">儲存</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 編輯群組彈窗 -->
+                <div class="modal-backdrop" id="edit-group-modal" style="display: none;">
+                    <div class="modal">
+                        <div class="modal-header">
+                            <h3 class="modal-title">編輯群組</h3>
+                            <button type="button" class="modal-close" id="close-edit-group-modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="edit-group-form">
+                                <div class="form-group">
+                                    <label for="edit-group-name" class="form-label">群組名稱</label>
+                                    <input type="text" id="edit-group-name" class="form-control" value="admins">
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit-group-description" class="form-label">描述</label>
+                                    <textarea id="edit-group-description" class="form-control" rows="3">管理者群組</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">權限設定</label>
+                                    <div class="mt-2">
+                                        <label class="flex items-center mb-2">
+                                            <input type="checkbox" name="edit_can_login" value="1" checked class="mr-2 form-check-input">
+                                            <span>可以登入系統</span>
+                                        </label>
+                                        <label class="flex items-center mb-2">
+                                            <input type="checkbox" name="edit_can_manage" value="1" checked class="mr-2 form-check-input">
+                                            <span>可以管理系統 (管理者權限)</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="edit_can_use_links" value="1" checked class="mr-2 form-check-input">
+                                            <span>可以使用聊天連結</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline" id="cancel-edit-group">取消</button>
+                            <button type="button" class="btn btn-primary" id="submit-edit-group">儲存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 簡單的彈窗控制
+        document.getElementById('show-add-group-modal').addEventListener('click', function() {
+            document.getElementById('add-group-modal').style.display = 'flex';
+        });
+        
+        document.getElementById('close-add-group-modal').addEventListener('click', function() {
+            document.getElementById('add-group-modal').style.display = 'none';
+        });
+        
+        document.getElementById('cancel-add-group').addEventListener('click', function() {
+            document.getElementById('add-group-modal').style.display = 'none';
+        });
+        
+        document.getElementById('edit-group-1').addEventListener('click', function() {
+            document.getElementById('edit-group-modal').style.display = 'flex';
+        });
+        
+        document.getElementById('close-edit-group-modal').addEventListener('click', function() {
+            document.getElementById('edit-group-modal').style.display = 'none';
+        });
+        
+        document.getElementById('cancel-edit-group').addEventListener('click', function() {
+            document.getElementById('edit-group-modal').style.display = 'none';
+        });
+    </script>
+</body>
+</html> 

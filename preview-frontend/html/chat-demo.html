@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat - 聊天演示</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../css/styles.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", "PingFang TC", "Apple LiGothic Medium", sans-serif;
+        }
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #f9fafb;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        .chat-header {
+            padding: 1rem;
+            background-color: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+        .message {
+            margin-bottom: 1rem;
+            max-width: 80%;
+        }
+        .user-message {
+            margin-left: auto;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 1rem 1rem 0 1rem;
+            padding: 0.75rem 1rem;
+        }
+        .bot-message {
+            margin-right: auto;
+            background-color: #e5e7eb;
+            color: #374151;
+            border-radius: 1rem 1rem 1rem 0;
+            padding: 0.75rem 1rem;
+        }
+        .chat-input {
+            padding: 1rem;
+            border-top: 1px solid #e5e7eb;
+            background-color: white;
+        }
+        .chat-footer {
+            padding: 0.5rem;
+            background-color: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: center;
+        }
+        .thinking {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .dot {
+            height: 0.5rem;
+            width: 0.5rem;
+            margin: 0 0.25rem;
+            background-color: #9ca3af;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.3);
+                opacity: 0.7;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="admin-layout">
+        <!-- 側邊導航欄 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="text-lg font-semibold text-white">AI Chat 管理平台</h1>
+                <button type="button" class="text-white">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="sidebar-footer mt-auto p-4 border-t border-gray-700 flex justify-center">
+                <img src="images/hanlin-logo.png" alt="翰林雲端 Logo" class="h-8 w-auto">
+            </div>
+        </div>
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="flex items-center">
+                    <div>
+                        <h1 class="text-lg font-semibold">客服聊天機器人</h1>
+                        <p class="text-sm text-blue-100">可解答各種客服相關問題</p>
+                    </div>
+                </div>
+                <button class="p-2 rounded-full hover:bg-blue-600 transition">
+                    <i class="fas fa-times text-white"></i>
+                </button>
+            </div>
+            
+            <div class="chat-messages" id="chat-messages">
+                <!-- 機器人歡迎訊息 -->
+                <div class="message bot-message">
+                    您好！我是客服聊天機器人，很高興為您服務。您可以詢問我有關產品、服務、訂單或其他客服相關問題。請告訴我您需要什麼幫助？
+                </div>
+                
+                <!-- 用戶訊息範例 -->
+                <div class="message user-message">
+                    我想了解你們的退貨政策
+                </div>
+                
+                <!-- 機器人回應 -->
+                <div class="message bot-message">
+                    您好！關於我們的退貨政策，主要有以下幾點：<br><br>
+                    1. 商品收到後7天內可申請退貨<br>
+                    2. 商品必須保持全新狀態，包含完整包裝和配件<br>
+                    3. 客製化商品除瑕疵外不適用於一般退貨政策<br>
+                    4. 退款將於確認商品狀態後3-5個工作天內處理<br><br>
+                    若您有更具體的問題或需要退貨協助，可以提供您的訂單號碼，我可以進一步為您查詢。
+                </div>
+                
+                <!-- 用戶訊息範例 -->
+                <div class="message user-message">
+                    如果商品有瑕疵怎麼辦？
+                </div>
+                
+                <!-- 正在思考指示器 -->
+                <div class="thinking bot-message" style="padding: 0.5rem 1rem;">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+            
+            <div class="chat-input">
+                <div class="flex items-center">
+                    <input type="text" placeholder="請輸入您的問題..." class="flex-grow py-2 px-4 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" id="user-input">
+                    <button class="ml-2 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition" id="send-button">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="chat-footer">
+                <img src="images/hanlin-logo.png" alt="翰林雲端 Logo" class="h-6 w-auto">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模擬聊天功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const messagesContainer = document.getElementById('chat-messages');
+            const userInput = document.getElementById('user-input');
+            const sendButton = document.getElementById('send-button');
+            const thinking = document.querySelector('.thinking');
+            
+            // 隱藏思考指示器
+            thinking.style.display = 'none';
+            
+            // 預設回應
+            const defaultResponses = [
+                "感謝您的提問！關於這個問題，我們的商品如有瑕疵，您可以在收到商品的14天內申請退換貨。請提供訂單號碼和商品瑕疵的照片，我們的客服團隊會優先處理您的案件，並視情況提供免費重送或全額退款服務。",
+                "我了解您的問題了。我們有專門的售後服務團隊處理商品瑕疵問題。當您發現商品有瑕疵時，可以透過客服中心提交申請，並附上瑕疵照片。我們會在24小時內回覆您，並安排後續處理方式。",
+                "我們非常重視商品品質。如果您收到有瑕疵的商品，請立即聯繫我們的客服團隊。您可以透過網站的「聯絡我們」頁面上傳瑕疵照片，我們會根據瑕疵情況提供換貨、維修或退款服務。所有因商品瑕疵產生的回寄運費，公司將全額負擔。"
+            ];
+            
+            // 發送訊息函數
+            function sendMessage() {
+                const message = userInput.value.trim();
+                if (message) {
+                    // 新增使用者訊息
+                    const userMessageElement = document.createElement('div');
+                    userMessageElement.className = 'message user-message';
+                    userMessageElement.textContent = message;
+                    messagesContainer.appendChild(userMessageElement);
+                    
+                    // 清空輸入框並聚焦
+                    userInput.value = '';
+                    userInput.focus();
+                    
+                    // 滾動到底部
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    
+                    // 顯示思考指示器
+                    thinking.style.display = 'flex';
+                    
+                    // 模擬回應延遲
+                    setTimeout(() => {
+                        // 隱藏思考指示器
+                        thinking.style.display = 'none';
+                        
+                        // 隨機選擇一個預設回應
+                        const randomResponse = defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+                        
+                        // 新增機器人回應
+                        const botMessageElement = document.createElement('div');
+                        botMessageElement.className = 'message bot-message';
+                        botMessageElement.textContent = randomResponse;
+                        messagesContainer.appendChild(botMessageElement);
+                        
+                        // 滾動到底部
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    }, 1500);
+                }
+            }
+            
+            // 點擊發送按鈕
+            sendButton.addEventListener('click', sendMessage);
+            
+            // 按下 Enter 鍵發送
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

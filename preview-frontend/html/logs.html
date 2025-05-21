@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat 管理平台 - 操作紀錄</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- 側邊導航欄 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="text-lg font-semibold text-white">AI Chat 管理平台</h1>
+                <button type="button" class="text-white">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-item">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>儀表板</span>
+                </a>
+                <a href="users.html" class="sidebar-item">
+                    <i class="fas fa-users"></i>
+                    <span>使用者管理</span>
+                </a>
+                <a href="groups.html" class="sidebar-item">
+                    <i class="fas fa-user-friends"></i>
+                    <span>群組管理</span>
+                </a>
+                <a href="chat-links.html" class="sidebar-item">
+                    <i class="fas fa-link"></i>
+                    <span>聊天連結管理</span>
+                </a>
+                <a href="ad-config.html" class="sidebar-item">
+                    <i class="fas fa-network-wired"></i>
+                    <span>AD 設定</span>
+                </a>
+                <a href="logs.html" class="sidebar-item active">
+                    <i class="fas fa-history"></i>
+                    <span>操作紀錄</span>
+                </a>
+            </div>
+            <div class="sidebar-footer mt-auto p-4 border-t border-gray-700 flex justify-center">
+                <img src="images/hanlin-logo.png" alt="翰林雲端 Logo" class="h-8 w-auto">
+            </div>
+        </div>
+
+        <!-- 主要內容區域 -->
+        <div class="main-content">
+            <!-- 頂部導航欄 -->
+            <div class="top-navbar">
+                <div class="breadcrumb">
+                    <span class="breadcrumb-item">首頁</span>
+                    <span class="breadcrumb-item active">操作紀錄</span>
+                </div>
+                <div class="user-dropdown">
+                    <div class="user-dropdown-toggle">
+                        <div class="user-avatar">
+                            <span>管</span>
+                        </div>
+                        <div>
+                            <div class="font-medium">系統管理員</div>
+                            <div class="text-xs text-gray-500">admin</div>
+                        </div>
+                        <i class="fas fa-chevron-down ml-2 text-gray-500"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 頁面內容區域 -->
+            <div class="page-content">
+                <h1 class="text-2xl font-bold mb-4">操作紀錄</h1>
+                
+                <!-- 功能區塊 -->
+                <div class="card mb-6">
+                    <div class="card-body p-4">
+                        <div class="flex flex-wrap justify-between items-center">
+                            <!-- 搜尋表單 -->
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
+                                <div class="form-group mb-0">
+                                    <label for="date-range" class="form-label">日期範圍</label>
+                                    <select id="date-range" class="form-select">
+                                        <option value="today">今日</option>
+                                        <option value="yesterday">昨日</option>
+                                        <option value="last7days" selected>最近 7 天</option>
+                                        <option value="last30days">最近 30 天</option>
+                                        <option value="custom">自訂日期</option>
+                                    </select>
+                                </div>
+                                <div class="form-group mb-0">
+                                    <label for="user" class="form-label">使用者</label>
+                                    <select id="user" class="form-select">
+                                        <option value="">全部使用者</option>
+                                        <option value="1">系統管理員 (admin)</option>
+                                        <option value="2">李大明 (john.doe)</option>
+                                        <option value="3">王小明 (jane.smith)</option>
+                                        <option value="4">陳志明 (mark.chen)</option>
+                                        <option value="5">王美麗 (amy.wang)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group mb-0">
+                                    <label for="action" class="form-label">操作類型</label>
+                                    <select id="action" class="form-select">
+                                        <option value="">全部操作</option>
+                                        <option value="LOGIN">登入</option>
+                                        <option value="LOGOUT">登出</option>
+                                        <option value="CREATE_USER">建立使用者</option>
+                                        <option value="UPDATE_USER">更新使用者</option>
+                                        <option value="DELETE_USER">刪除使用者</option>
+                                        <option value="CREATE_GROUP">建立群組</option>
+                                        <option value="UPDATE_GROUP">更新群組</option>
+                                        <option value="DELETE_GROUP">刪除群組</option>
+                                        <option value="CREATE_CHAT_LINK">建立聊天連結</option>
+                                        <option value="UPDATE_CHAT_LINK">更新聊天連結</option>
+                                        <option value="DELETE_CHAT_LINK">刪除聊天連結</option>
+                                        <option value="UPDATE_AD_CONFIG">更新 AD 設定</option>
+                                    </select>
+                                </div>
+                                <div class="form-group mb-0 flex items-end">
+                                    <button class="btn btn-primary w-full">
+                                        <i class="fas fa-search"></i>
+                                        <span>搜尋</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 操作紀錄列表 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">操作紀錄列表</h2>
+                        <div class="flex">
+                            <button class="btn btn-outline mr-2">
+                                <i class="fas fa-file-excel"></i>
+                                <span>匯出 Excel</span>
+                            </button>
+                            <button class="btn btn-outline">
+                                <i class="fas fa-print"></i>
+                                <span>列印</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px;">#</th>
+                                        <th style="width: 180px;">時間</th>
+                                        <th style="width: 150px;">使用者</th>
+                                        <th style="width: 150px;">操作類型</th>
+                                        <th>詳細內容</th>
+                                        <th style="width: 120px;">IP 位址</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1021</td>
+                                        <td>2025-05-07 14:30:25</td>
+                                        <td>系統管理員 (admin)</td>
+                                        <td><span class="badge bg-blue-100 text-blue-800">更新群組</span></td>
+                                        <td>更新群組 "sales" 的設定</td>
+                                        <td>192.168.1.100</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1020</td>
+                                        <td>2025-05-07 14:15:40</td>
+                                        <td>李大明 (john.doe)</td>
+                                        <td><span class="badge bg-green-100 text-green-800">建立聊天連結</span></td>
+                                        <td>建立新的聊天連結 "產品詢問助手"</td>
+                                        <td>192.168.1.120</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1019</td>
+                                        <td>2025-05-07 13:42:18</td>
+                                        <td>系統管理員 (admin)</td>
+                                        <td><span class="badge bg-blue-100 text-blue-800">登入</span></td>
+                                        <td>使用者登入 (IP: 192.168.1.100)</td>
+                                        <td>192.168.1.100</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1018</td>
+                                        <td>2025-05-07 13:25:50</td>
+                                        <td>王小明 (jane.smith)</td>
+                                        <td><span class="badge bg-yellow-100 text-yellow-800">更新使用者</span></td>
+                                        <td>更新使用者 "mark.chen" 的資料</td>
+                                        <td>192.168.1.135</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1017</td>
+                                        <td>2025-05-07 11:30:10</td>
+                                        <td>陳志明 (mark.chen)</td>
+                                        <td><span class="badge bg-red-100 text-red-800">刪除聊天連結</span></td>
+                                        <td>刪除聊天連結 "測試連結"</td>
+                                        <td>192.168.1.142</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1016</td>
+                                        <td>2025-05-07 10:15:32</td>
+                                        <td>李大明 (john.doe)</td>
+                                        <td><span class="badge bg-blue-100 text-blue-800">登入</span></td>
+                                        <td>使用者登入 (IP: 192.168.1.120)</td>
+                                        <td>192.168.1.120</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1015</td>
+                                        <td>2025-05-07 09:45:20</td>
+                                        <td>王美麗 (amy.wang)</td>
+                                        <td><span class="badge bg-green-100 text-green-800">建立使用者</span></td>
+                                        <td>建立新使用者 "david.lin"</td>
+                                        <td>192.168.1.151</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1014</td>
+                                        <td>2025-05-07 09:03:21</td>
+                                        <td>王小明 (jane.smith)</td>
+                                        <td><span class="badge bg-blue-100 text-blue-800">登入</span></td>
+                                        <td>使用者登入 (IP: 192.168.1.135)</td>
+                                        <td>192.168.1.135</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1013</td>
+                                        <td>2025-05-07 08:30:15</td>
+                                        <td>系統管理員 (admin)</td>
+                                        <td><span class="badge bg-purple-100 text-purple-800">更新 AD 設定</span></td>
+                                        <td>更新 AD 網域連線設定</td>
+                                        <td>192.168.1.100</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1012</td>
+                                        <td>2025-05-06 17:45:09</td>
+                                        <td>陳志明 (mark.chen)</td>
+                                        <td><span class="badge bg-blue-100 text-blue-800">登入</span></td>
+                                        <td>使用者登入 (IP: 192.168.1.142)</td>
+                                        <td>192.168.1.142</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <!-- 分頁 -->
+                        <div class="pagination">
+                            <span class="page-item disabled">
+                                <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="page-item active">1</span>
+                            <span class="page-item">2</span>
+                            <span class="page-item">3</span>
+                            <span class="page-item">4</span>
+                            <span class="page-item">5</span>
+                            <span class="page-item">
+                                <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 操作紀錄圖表 -->
+                <div class="card mt-6">
+                    <div class="card-header">
+                        <h2 class="card-title">操作統計</h2>
+                        <span class="text-gray-500">最近 7 天</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- 操作類型統計 -->
+                            <div>
+                                <h3 class="font-semibold mb-4">操作類型分佈</h3>
+                                <div class="h-64 flex items-center justify-center">
+                                    <!-- 簡單模擬圓餅圖 -->
+                                    <div class="relative w-48 h-48">
+                                        <div class="absolute inset-0 bg-blue-500 rounded-full"></div>
+                                        <div class="absolute inset-0 bg-green-500 rounded-full" style="clip-path: polygon(50% 50%, 50% 0, 100% 0, 100% 60%, 50% 50%);"></div>
+                                        <div class="absolute inset-0 bg-yellow-500 rounded-full" style="clip-path: polygon(50% 50%, 100% 60%, 100% 100%, 70% 100%, 50% 50%);"></div>
+                                        <div class="absolute inset-0 bg-red-500 rounded-full" style="clip-path: polygon(50% 50%, 70% 100%, 0 100%, 0 80%, 50% 50%);"></div>
+                                        <div class="absolute inset-0 bg-purple-500 rounded-full" style="clip-path: polygon(50% 50%, 0 80%, 0 0, 50% 0, 50% 50%);"></div>
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <div class="w-16 h-16 bg-white rounded-full"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap justify-center mt-4">
+                                    <div class="flex items-center mr-4 mb-2">
+                                        <div class="w-3 h-3 bg-blue-500 rounded-full mr-1"></div>
+                                        <span class="text-sm">登入/登出 (40%)</span>
+                                    </div>
+                                    <div class="flex items-center mr-4 mb-2">
+                                        <div class="w-3 h-3 bg-green-500 rounded-full mr-1"></div>
+                                        <span class="text-sm">建立操作 (20%)</span>
+                                    </div>
+                                    <div class="flex items-center mr-4 mb-2">
+                                        <div class="w-3 h-3 bg-yellow-500 rounded-full mr-1"></div>
+                                        <span class="text-sm">更新操作 (20%)</span>
+                                    </div>
+                                    <div class="flex items-center mr-4 mb-2">
+                                        <div class="w-3 h-3 bg-red-500 rounded-full mr-1"></div>
+                                        <span class="text-sm">刪除操作 (10%)</span>
+                                    </div>
+                                    <div class="flex items-center mr-4 mb-2">
+                                        <div class="w-3 h-3 bg-purple-500 rounded-full mr-1"></div>
+                                        <span class="text-sm">其他 (10%)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 每日操作數量統計 -->
+                            <div>
+                                <h3 class="font-semibold mb-4">每日操作數量</h3>
+                                <div class="h-64 flex items-end">
+                                    <div class="w-1/7 mx-1">
+                                        <div class="bg-blue-500 h-32 rounded-t"></div>
+                                        <div class="text-xs text-center mt-2">5/1</div>
+                                    </div>
+                                    <div class="w-1/7 mx-1">
+                                        <div class="bg-blue-500 h-48 rounded-t"></div>
+                                        <div class="text-xs text-center mt-2">5/2</div>
+                                    </div>
+                                    <div class="w-1/7 mx-1">
+                                        <div class="bg-blue-500 h-40 rounded-t"></div>
+                                        <div class="text-xs text-center mt-2">5/3</div>
+                                    </div>
+                                    <div class="w-1/7 mx-1">
+                                        <div class="bg-blue-500 h-56 rounded-t"></div>
+                                        <div class="text-xs text-center mt-2">5/4</div>
+                                    </div>
+                                    <div class="w-1/7 mx-1">
+                                        <div class="bg-blue-500 h-36 rounded-t"></div>
+                                        <div class="text-xs text-center mt-2">5/5</div>
+                                    </div>
+                                    <div class="w-1/7 mx-1">
+                                        <div class="bg-blue-500 h-24 rounded-t"></div>
+                                        <div class="text-xs text-center mt-2">5/6</div>
+                                    </div>
+                                    <div class="w-1/7 mx-1">
+                                        <div class="bg-blue-500 h-52 rounded-t"></div>
+                                        <div class="text-xs text-center mt-2">5/7</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

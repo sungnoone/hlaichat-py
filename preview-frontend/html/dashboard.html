@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat 管理平台 - 儀表板</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- 側邊導航欄 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="text-lg font-semibold text-white">AI Chat 管理平台</h1>
+                <button type="button" class="text-white">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-item active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>儀表板</span>
+                </a>
+                <a href="users.html" class="sidebar-item">
+                    <i class="fas fa-users"></i>
+                    <span>使用者管理</span>
+                </a>
+                <a href="groups.html" class="sidebar-item">
+                    <i class="fas fa-user-friends"></i>
+                    <span>群組管理</span>
+                </a>
+                <a href="chat-links.html" class="sidebar-item">
+                    <i class="fas fa-link"></i>
+                    <span>聊天連結管理</span>
+                </a>
+                <a href="ad-config.html" class="sidebar-item">
+                    <i class="fas fa-network-wired"></i>
+                    <span>AD 設定</span>
+                </a>
+                <a href="logs.html" class="sidebar-item">
+                    <i class="fas fa-history"></i>
+                    <span>操作紀錄</span>
+                </a>
+            </div>
+            <div class="sidebar-footer mt-auto p-4 border-t border-gray-700 flex justify-center">
+                <img src="images/hanlin-logo.png" alt="翰林雲端 Logo" class="h-8 w-auto">
+            </div>
+        </div>
+
+        <!-- 主要內容區域 -->
+        <div class="main-content">
+            <!-- 頂部導航欄 -->
+            <div class="top-navbar">
+                <div class="breadcrumb">
+                    <span class="breadcrumb-item">首頁</span>
+                    <span class="breadcrumb-item active">儀表板</span>
+                </div>
+                <div class="user-dropdown">
+                    <div class="user-dropdown-toggle">
+                        <div class="user-avatar">
+                            <span>管</span>
+                        </div>
+                        <div>
+                            <div class="font-medium">系統管理員</div>
+                            <div class="text-xs text-gray-500">admin</div>
+                        </div>
+                        <i class="fas fa-chevron-down ml-2 text-gray-500"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 頁面內容區域 -->
+            <div class="page-content">
+                <h1 class="text-2xl font-bold mb-4">儀表板</h1>
+                
+                <!-- 統計資訊卡片 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <!-- 使用者數量 -->
+                    <div class="card bg-white p-4 rounded-lg shadow-sm">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-users text-blue-500 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-gray-500 text-sm">使用者數量</h3>
+                                <p class="text-2xl font-bold">42</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 群組數量 -->
+                    <div class="card bg-white p-4 rounded-lg shadow-sm">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-user-friends text-green-500 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-gray-500 text-sm">群組數量</h3>
+                                <p class="text-2xl font-bold">8</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 聊天連結數量 -->
+                    <div class="card bg-white p-4 rounded-lg shadow-sm">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-link text-purple-500 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-gray-500 text-sm">聊天連結數量</h3>
+                                <p class="text-2xl font-bold">15</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 今日訪問次數 -->
+                    <div class="card bg-white p-4 rounded-lg shadow-sm">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-chart-line text-yellow-500 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-gray-500 text-sm">今日訪問次數</h3>
+                                <p class="text-2xl font-bold">128</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 系統狀態和最近登入 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- 系統狀態 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">系統狀態</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <div class="flex justify-between mb-1">
+                                    <span>資料庫連線</span>
+                                    <span class="text-green-500">正常</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="flex justify-between mb-1">
+                                    <span>AD 網域連線</span>
+                                    <span class="text-green-500">正常</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="flex justify-between mb-1">
+                                    <span>系統負載</span>
+                                    <span class="text-yellow-500">中等</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 65%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span>記憶體使用率</span>
+                                    <span class="text-blue-500">良好</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 30%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 最近登入 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">最近登入紀錄</h2>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>使用者</th>
+                                            <th>登入時間</th>
+                                            <th>IP 位址</th>
+                                            <th>狀態</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>admin</td>
+                                            <td>2025-05-07 13:42:18</td>
+                                            <td>192.168.1.100</td>
+                                            <td><span class="badge badge-success">成功</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>john.doe</td>
+                                            <td>2025-05-07 10:15:32</td>
+                                            <td>192.168.1.120</td>
+                                            <td><span class="badge badge-success">成功</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>jane.smith</td>
+                                            <td>2025-05-07 09:03:21</td>
+                                            <td>192.168.1.135</td>
+                                            <td><span class="badge badge-danger">失敗</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>mark.chen</td>
+                                            <td>2025-05-06 17:45:09</td>
+                                            <td>192.168.1.142</td>
+                                            <td><span class="badge badge-success">成功</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>amy.wang</td>
+                                            <td>2025-05-06 16:30:47</td>
+                                            <td>192.168.1.151</td>
+                                            <td><span class="badge badge-success">成功</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 聊天連結使用統計 -->
+                <div class="card mt-6">
+                    <div class="card-header">
+                        <h2 class="card-title">聊天連結使用統計 (近 7 天)</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="h-64 flex items-end">
+                            <div class="w-1/7 mx-1">
+                                <div class="bg-blue-500 h-32 rounded-t"></div>
+                                <div class="text-xs text-center mt-2">5/1</div>
+                            </div>
+                            <div class="w-1/7 mx-1">
+                                <div class="bg-blue-500 h-48 rounded-t"></div>
+                                <div class="text-xs text-center mt-2">5/2</div>
+                            </div>
+                            <div class="w-1/7 mx-1">
+                                <div class="bg-blue-500 h-40 rounded-t"></div>
+                                <div class="text-xs text-center mt-2">5/3</div>
+                            </div>
+                            <div class="w-1/7 mx-1">
+                                <div class="bg-blue-500 h-56 rounded-t"></div>
+                                <div class="text-xs text-center mt-2">5/4</div>
+                            </div>
+                            <div class="w-1/7 mx-1">
+                                <div class="bg-blue-500 h-36 rounded-t"></div>
+                                <div class="text-xs text-center mt-2">5/5</div>
+                            </div>
+                            <div class="w-1/7 mx-1">
+                                <div class="bg-blue-500 h-24 rounded-t"></div>
+                                <div class="text-xs text-center mt-2">5/6</div>
+                            </div>
+                            <div class="w-1/7 mx-1">
+                                <div class="bg-blue-500 h-52 rounded-t"></div>
+                                <div class="text-xs text-center mt-2">5/7</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

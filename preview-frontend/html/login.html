@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat 管理平台 - 登入</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="../css/styles.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="login-container">
+        <div class="login-content">
+            <div class="login-header">
+                <h1 class="login-title">AI Chat 管理平台</h1>
+                <p class="text-gray-500 mt-2">登入以管理 AI 聊天流程對話網址</p>
+            </div>
+            
+            <div class="login-tabs">
+                <div class="login-tab active" id="platform-tab">平台帳號</div>
+                <div class="login-tab" id="ad-tab">AD 帳號</div>
+            </div>
+
+            <!-- 平台帳號登入表單 -->
+            <div id="platform-form" class="login-form">
+                <div class="form-group">
+                    <label for="username" class="form-label">使用者名稱</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                            <i class="fas fa-user"></i>
+                        </span>
+                        <input type="text" id="username" class="form-control pl-10" placeholder="請輸入使用者名稱">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="password" class="form-label">密碼</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" id="password" class="form-control pl-10" placeholder="請輸入密碼">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>登入</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- AD 帳號登入表單 -->
+            <div id="ad-form" class="login-form" style="display: none;">
+                <div class="form-group">
+                    <label for="ad-username" class="form-label">AD 使用者名稱</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                            <i class="fas fa-user"></i>
+                        </span>
+                        <input type="text" id="ad-username" class="form-control pl-10" placeholder="請輸入 AD 使用者名稱">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="ad-password" class="form-label">AD 密碼</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" id="ad-password" class="form-control pl-10" placeholder="請輸入 AD 密碼">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>AD 登入</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="login-footer">
+                <div class="flex justify-center mb-2">
+                    <img src="images/hanlin-logo.png" alt="翰林雲端 Logo" class="h-12 w-auto">
+                </div>
+                <p>© 2025 AI Chat 管理平台</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 切換登入表單的簡單演示
+        document.getElementById('platform-tab').addEventListener('click', function() {
+            document.getElementById('platform-tab').classList.add('active');
+            document.getElementById('ad-tab').classList.remove('active');
+            document.getElementById('platform-form').style.display = 'block';
+            document.getElementById('ad-form').style.display = 'none';
+        });
+
+        document.getElementById('ad-tab').addEventListener('click', function() {
+            document.getElementById('ad-tab').classList.add('active');
+            document.getElementById('platform-tab').classList.remove('active');
+            document.getElementById('ad-form').style.display = 'block';
+            document.getElementById('platform-form').style.display = 'none';
+        });
+    </script>
+</body>
+</html> 
