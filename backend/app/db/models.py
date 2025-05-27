@@ -72,12 +72,31 @@ class ChatLink(Base):
     name = Column(String, nullable=False)
     url = Column(String, nullable=True)  # Hosted Chat 網址
     embed_code = Column(Text, nullable=True)  # Embedded Chat 嵌入代碼
-    link_type = Column(String, nullable=False)  # 'hosted' 或 'embedded'
+    webhook_url = Column(String, nullable=True)  # Webhook 網址
+    link_type = Column(String, nullable=False)  # 'hosted', 'embedded', 'webhook'
     description = Column(Text, nullable=True)
+    credential_id = Column(Integer, ForeignKey("credentials.id"), nullable=True)  # 關聯到憑證
     created_at = Column(DateTime(timezone=True), default=settings.get_taipei_now)
     
     # 關聯
     groups = relationship("Group", secondary=group_chat_link, back_populates="chat_links")
+    credential = relationship("Credential", back_populates="chat_links")
+
+class Credential(Base):
+    """
+    憑證模型 - 管理 API Key
+    """
+    __tablename__ = "credentials"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, index=True, nullable=False)  # 容易記的名稱
+    api_key = Column(String, nullable=False)  # API Key (明文儲存)
+    description = Column(Text, nullable=True)  # 描述
+    created_at = Column(DateTime(timezone=True), default=settings.get_taipei_now)
+    updated_at = Column(DateTime(timezone=True), default=settings.get_taipei_now, onupdate=settings.get_taipei_now)
+    
+    # 關聯
+    chat_links = relationship("ChatLink", back_populates="credential")
 
 class OperationLog(Base):
     """
@@ -94,6 +113,44 @@ class OperationLog(Base):
     
     # 關聯
     user = relationship("User", back_populates="logs")
+
+class ChatSession(Base):
+    """
+    聊天會話模型
+    """
+    __tablename__ = "chat_sessions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(String, unique=True, index=True, nullable=False)  # 會話唯一識別碼
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    chat_link_id = Column(Integer, ForeignKey("chat_links.id"), nullable=False)
+    title = Column(String, nullable=True)  # 會話標題，可由第一條訊息自動生成
+    created_at = Column(DateTime(timezone=True), default=settings.get_taipei_now)
+    updated_at = Column(DateTime(timezone=True), default=settings.get_taipei_now, onupdate=settings.get_taipei_now)
+    is_active = Column(Boolean, default=True)  # 會話是否活躍
+    
+    # 關聯
+    user = relationship("User")
+    chat_link = relationship("ChatLink")
+    messages = relationship("ChatMessage", back_populates="session", cascade="all, delete-orphan")
+
+class ChatMessage(Base):
+    """
+    聊天訊息模型
+    """
+    __tablename__ = "chat_messages"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(String, ForeignKey("chat_sessions.session_id"), nullable=False)
+    sequence = Column(Integer, nullable=False)  # 訊息序號，由後端維護
+    message_type = Column(String, nullable=False)  # 'user' 或 'assistant'
+    content = Column(Text, nullable=False)  # 訊息內容
+    timestamp = Column(DateTime(timezone=True), default=settings.get_taipei_now)
+    webhook_response = Column(Text, nullable=True)  # 完整的 webhook 回應 (JSON)
+    processing_time = Column(Integer, nullable=True)  # 處理時間 (毫秒)
+    
+    # 關聯
+    session = relationship("ChatSession", back_populates="messages")
 
 class ADConfig(Base):
     """

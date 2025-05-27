@@ -100,7 +100,7 @@ def login(
     # 回傳 token
     # 將 SQLAlchemy 模型轉換為 Pydantic 模型
     from app.schemas.user_schemas import User as UserSchema
-    user_schema = UserSchema.from_orm(user)
+    user_schema = UserSchema.model_validate(user)
     
     return Token(
         access_token=access_token,
@@ -241,7 +241,7 @@ def ad_login(
         # 回傳 token
         # 將 SQLAlchemy 模型轉換為 Pydantic 模型
         from app.schemas.user_schemas import User as UserSchema
-        user_schema = UserSchema.from_orm(user)
+        user_schema = UserSchema.model_validate(user)
         
         return Token(
             access_token=access_token,
@@ -323,7 +323,7 @@ def get_me(
     
     # 將 SQLAlchemy 模型轉換為 Pydantic 模型
     from app.schemas.user_schemas import User as UserSchema
-    user_schema = UserSchema.from_orm(current_user)
+    user_schema = UserSchema.model_validate(current_user)
     
     return Token(
         access_token=access_token,

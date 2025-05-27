@@ -33,8 +33,9 @@
               label="類型"
               :items="[
                 { value: '', title: '所有類型' },
-                { value: 'hosted', title: 'Hosted Chat' },
-                { value: 'embedded', title: 'Embedded Chat' }
+                { value: 'n8n_host_chat', title: 'n8n Host Chat' },
+                { value: 'n8n_embedded_chat', title: 'n8n Embedded Chat' },
+                { value: 'n8n_webhook', title: 'n8n Webhook' }
               ]"
               item-title="title"
               item-value="value"
@@ -65,10 +66,10 @@
         <!-- 類型欄 -->
         <template v-slot:item.link_type="{ item }">
           <v-chip
-            :color="item.link_type === 'hosted' ? 'primary' : 'secondary'"
+            :color="getLinkTypeColor(item.link_type)"
             size="small"
           >
-            {{ item.link_type === 'hosted' ? 'Hosted Chat' : 'Embedded Chat' }}
+            {{ getLinkTypeLabel(item.link_type) }}
           </v-chip>
         </template>
 
@@ -118,16 +119,22 @@
                   管理群組
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item v-if="item.link_type === 'hosted'" @click="openLink(item.url)">
+              <v-list-item v-if="item.link_type === 'n8n_host_chat'" @click="openLink(item.url)">
                 <v-list-item-title>
                   <v-icon start>mdi-open-in-new</v-icon>
                   開啟連結
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item v-if="item.link_type === 'embedded'" @click="viewEmbedCode(item)">
+              <v-list-item v-if="item.link_type === 'n8n_embedded_chat'" @click="viewEmbedCode(item)">
                 <v-list-item-title>
                   <v-icon start>mdi-code-tags</v-icon>
                   查看嵌入代碼
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item v-if="item.link_type === 'n8n_webhook'" @click="openChatInterface(item)">
+                <v-list-item-title>
+                  <v-icon start>mdi-chat</v-icon>
+                  開啟聊天介面
                 </v-list-item-title>
               </v-list-item>
               <v-divider></v-divider>
@@ -184,29 +191,59 @@
               label="連結類型"
               class="mb-3"
             >
-              <v-radio value="hosted" label="Hosted Chat (完整網址)"></v-radio>
-              <v-radio value="embedded" label="Embedded Chat (嵌入代碼)"></v-radio>
+              <v-radio value="n8n_host_chat" label="n8n Host Chat (完整網址)"></v-radio>
+              <v-radio value="n8n_embedded_chat" label="n8n Embedded Chat (嵌入代碼)"></v-radio>
+              <v-radio value="n8n_webhook" label="n8n Webhook (API 端點)"></v-radio>
             </v-radio-group>
 
             <v-text-field
-              v-if="linkDialog.data.link_type === 'hosted'"
+              v-if="linkDialog.data.link_type === 'n8n_host_chat'"
               v-model="linkDialog.data.url"
-              label="聊天連結 URL"
-              :rules="[v => !!v || '請輸入聊天連結 URL']"
+              label="n8n Host Chat URL"
+              :rules="[v => !!v || '請輸入 n8n Host Chat URL']"
               variant="outlined"
               class="mb-3"
             ></v-text-field>
 
             <v-textarea
-              v-if="linkDialog.data.link_type === 'embedded'"
+              v-if="linkDialog.data.link_type === 'n8n_embedded_chat'"
               v-model="linkDialog.data.embed_code"
-              label="嵌入代碼"
+              label="n8n Embedded Chat 嵌入代碼"
               :rules="[v => !!v || '請輸入嵌入代碼']"
               variant="outlined"
               auto-grow
               rows="8"
               class="mb-3"
             ></v-textarea>
+
+            <div v-if="linkDialog.data.link_type === 'n8n_webhook'">
+              <v-text-field
+                v-model="linkDialog.data.webhook_url"
+                label="n8n Webhook URL"
+                :rules="[v => !!v || '請輸入 n8n Webhook URL']"
+                variant="outlined"
+                class="mb-3"
+              ></v-text-field>
+
+              <v-select
+                v-model="linkDialog.data.credential_id"
+                label="選擇 API Key 憑證"
+                :items="credentials"
+                item-title="name"
+                item-value="id"
+                variant="outlined"
+                class="mb-3"
+                clearable
+              >
+                <template v-slot:no-data>
+                  <v-list-item>
+                    <v-list-item-title>
+                      尚無可用的憑證，請先到憑證管理新增
+                    </v-list-item-title>
+                  </v-list-item>
+                </template>
+              </v-select>
+            </div>
 
             <v-divider class="mb-3"></v-divider>
             <div class="text-subtitle-1 mb-2">可使用群組</div>
@@ -349,6 +386,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import AdminLayout from '@/components/AdminLayout.vue'
 import axios from 'axios'
+import { credentialApi } from '@/services/api'
 
 export default {
   name: 'ChatLinks',
@@ -358,6 +396,7 @@ export default {
   setup() {
     const chatLinks = ref([])
     const groups = ref([])
+    const credentials = ref([])
     const loading = ref(false)
     const copySuccess = ref(false)
     const search = ref('')
@@ -390,9 +429,11 @@ export default {
         id: null,
         name: '',
         description: '',
-        link_type: 'hosted',
+        link_type: 'n8n_host_chat',
         url: '',
         embed_code: '',
+        webhook_url: '',
+        credential_id: null,
         group_ids: []
       }
     })
@@ -434,6 +475,38 @@ export default {
     const formatDate = (dateStr) => {
       const date = new Date(dateStr)
       return date.toLocaleDateString('zh-TW')
+    }
+    
+    // 取得連結類型顏色
+    const getLinkTypeColor = (linkType) => {
+      switch (linkType) {
+        case 'n8n_host_chat':
+          return 'primary'
+        case 'n8n_embedded_chat':
+          return 'secondary'
+        case 'n8n_webhook':
+          return 'success'
+        case 'flowise_chat':
+          return 'info'
+        default:
+          return 'grey'
+      }
+    }
+    
+    // 取得連結類型標籤
+    const getLinkTypeLabel = (linkType) => {
+      switch (linkType) {
+        case 'n8n_host_chat':
+          return 'n8n Host Chat'
+        case 'n8n_embedded_chat':
+          return 'n8n Embedded Chat'
+        case 'n8n_webhook':
+          return 'n8n Webhook'
+        case 'flowise_chat':
+          return 'Flowise Chat'
+        default:
+          return linkType
+      }
     }
     
     // 獲取聊天連結列表
@@ -479,6 +552,16 @@ export default {
       }
     }
     
+    // 獲取憑證列表
+    const fetchCredentials = async () => {
+      try {
+        const response = await credentialApi.getAllCredentials()
+        credentials.value = response
+      } catch (error) {
+        console.error('獲取憑證失敗:', error)
+      }
+    }
+    
     // 開啟聊天連結
     const openLink = (url) => {
       window.open(url, '_blank')
@@ -501,6 +584,12 @@ export default {
         })
     }
     
+    // 開啟聊天介面 (針對 webhook 類型)
+    const openChatInterface = (item) => {
+      // 導向到聊天介面，並傳遞聊天連結 ID
+      window.open(`/chat?link_id=${item.id}`, '_blank')
+    }
+    
     // 開啟新增聊天連結對話框
     const openCreateDialog = () => {
       linkDialog.isEdit = false
@@ -508,9 +597,11 @@ export default {
         id: null,
         name: '',
         description: '',
-        link_type: 'hosted',
+        link_type: 'n8n_host_chat',
         url: '',
         embed_code: '',
+        webhook_url: '',
+        credential_id: null,
         group_ids: []
       }
       linkDialog.show = true
@@ -526,6 +617,8 @@ export default {
         link_type: item.link_type,
         url: item.url || '',
         embed_code: item.embed_code || '',
+        webhook_url: item.webhook_url || '',
+        credential_id: item.credential_id || null,
         group_ids: item.groups ? item.groups.map(g => g.id) : []
       }
       linkDialog.show = true
@@ -564,10 +657,13 @@ export default {
         }
         
         // 根據類型加入對應的字段
-        if (linkDialog.data.link_type === 'hosted') {
+        if (linkDialog.data.link_type === 'n8n_host_chat') {
           data.url = linkDialog.data.url
-        } else {
+        } else if (linkDialog.data.link_type === 'n8n_embedded_chat') {
           data.embed_code = linkDialog.data.embed_code
+        } else if (linkDialog.data.link_type === 'n8n_webhook') {
+          data.webhook_url = linkDialog.data.webhook_url
+          data.credential_id = linkDialog.data.credential_id
         }
         
         if (linkDialog.isEdit) {
@@ -643,11 +739,13 @@ export default {
     onMounted(() => {
       fetchChatLinks()
       fetchGroups()
+      fetchCredentials()
     })
     
     return {
       chatLinks,
       groups,
+      credentials,
       loading,
       copySuccess,
       search,
@@ -661,10 +759,13 @@ export default {
       snackbar,
       linkForm,
       formatDate,
+      getLinkTypeColor,
+      getLinkTypeLabel,
       fetchChatLinks,
       openLink,
       viewEmbedCode,
       copyEmbedCode,
+      openChatInterface,
       openCreateDialog,
       openEditDialog,
       openGroupsDialog,

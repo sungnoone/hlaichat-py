@@ -116,6 +116,7 @@ export default {
       { title: '使用者管理', icon: 'mdi-account-cog-outline', to: '/users' },
       { title: '群組管理', icon: 'mdi-account-group-outline', to: '/groups' },
       { title: '聊天連結管理', icon: 'mdi-link-variant-plus', to: '/chat-links' },
+      { title: '憑證管理', icon: 'mdi-key-variant', to: '/credentials' },
       { title: 'AD 設定', icon: 'mdi-microsoft-azure', to: '/ad-config' },
       { title: '操作紀錄', icon: 'mdi-clipboard-text-clock-outline', to: '/logs' }
     ]

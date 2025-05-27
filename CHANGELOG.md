@@ -6,6 +6,54 @@
 
 ### 新增
 
+- 2025-05-27: 修復 n8n webhook 回應解析問題
+  - 修正後端 `chat_service.py` 中的 webhook 回應處理邏輯
+  - 支援多種回應格式：優先解析 `output` 欄位，其次為 `message`、`text`、`content` 欄位
+  - 新增詳細的 webhook 回應日誌記錄，包含原始回應內容、狀態碼和標頭資訊
+  - 改善 JSON 解析錯誤處理，當無法解析 JSON 時將原始文字作為回應內容
+  - 新增完整的錯誤堆疊追蹤，便於除錯和問題診斷
+  - **問題解決**：聊天介面現在能正確顯示 n8n "Respond to Webhook" 節點的回應內容
+
+- 2025-05-27: 聊天逾時設定優化
+  - 將所有聊天相關的逾時參數移至 `.env` 檔案統一管理
+  - 新增後端逾時參數：`CHAT_WEBHOOK_TIMEOUT`、`CHAT_REQUEST_TIMEOUT`、`CHAT_CONNECTION_TIMEOUT`
+  - 新增前端逾時參數：`VITE_CHAT_TIMEOUT`
+  - 修改後端 `chat_service.py` 使用環境變數中的逾時設定，取代硬編碼的 30 秒逾時
+  - 修改前端 `ChatInterface.vue` 使用環境變數中的逾時設定
+  - 建立詳細的逾時設定說明文件 `CHAT_TIMEOUT_CONFIGURATION.md`
+  - 更新 `env-template.txt` 包含新的逾時參數
+  - 確保 n8n workflow 有足夠時間處理複雜的 AI 請求
+
+- 2025-05-27: 修復 .env 檔案中文亂碼問題
+  - 使用 UTF-8 編碼重新建立 `.env` 檔案，解決中文註解顯示亂碼問題
+  - 確保檔案包含完整的環境變數參數，包括新增的聊天逾時設定
+  - 同步更新 `env-template.txt` 檔案格式，保持範本與實際檔案一致
+  - 改進 README.md 中的編碼問題說明，提供更詳細的解決方案
+
+- 2025-05-24: 完善 webhook trigger workflow 仿 ChatGPT 聊天介面設計
+  - 新增聊天會話和訊息資料模型 (ChatSession, ChatMessage)
+  - 建立聊天相關的 Pydantic 模型和 API 路由
+  - 實作聊天服務類別，支援會話管理和 webhook 整合
+  - 建立仿 ChatGPT 的前端聊天介面組件
+  - 支援多會話管理、訊息歷程記錄和即時對話
+  - 整合 n8n webhook 參數傳遞規範
+  - 新增聊天功能到使用者導航選單
+  - 更新資料庫遷移腳本，支援聊天相關表格建立
+
+- 2025-05-24: 聊天連結類型重構，支援未來 Flowise 整合
+  - **重要變更**: 重新設計聊天連結類型命名系統，避免日後混淆
+    - `host_chat` → `n8n_host_chat`
+    - `embedded_chat` → `n8n_embedded_chat`
+    - `webhook` → `n8n_webhook`
+    - 預留 `flowise_chat` 類型供未來擴展
+  - 建立並執行資料庫遷移腳本 `migrate_chat_link_types.py`
+  - 成功更新 2 個現有聊天連結的類型
+  - 更新前後端所有相關的類型檢查和顯示邏輯
+  - 建立測試腳本 `test_chat_link_types.py` 驗證系統正確性
+  - 更新測試功能文件，新增類型系統測試指引
+  - 建立詳細的遷移說明文件 `CHAT_LINK_TYPES_MIGRATION.md`
+  - 確保類型系統具備良好的擴展性和向後相容性
+
 - 初始專案架構設定
 - 資料庫模型定義
 - API 路由實作
@@ -14,9 +62,16 @@
   - 聊天連結管理 API
   - AD 設定 API
   - 操作紀錄 API
+  - 憑證管理 API (2025-05-23)
 - 認證與授權機制
 - AD 網域整合
 - 操作紀錄功能
+- 憑證管理功能 (2025-05-23)
+  - 後端憑證管理 API，包含 CRUD 操作
+  - 前端憑證管理介面，支援新增、編輯、刪除憑證
+  - API Key 顯示/隱藏和複製功能
+  - 憑證與聊天連結的關聯管理
+  - 完整的操作日誌記錄
 - 前端介面開發完成
   - 登入頁面
   - 管理員儀表板
@@ -29,6 +84,7 @@
   - 一般使用者儀表板
   - 一般使用者個人資料頁面
   - 一般使用者使用紀錄頁面
+  - 憑證管理頁面 (2025-05-23)
 - 前後端整合測試完成
 - 從原型設計中複製 logo 到正式前端
 - 新增網站圖示 (favicon) 系列檔案
@@ -54,6 +110,37 @@
 
 ### 修正
 
+- 2025-05-26: 專案清理和冗餘檔案移除
+  - 移除所有 Python 編譯快取檔案 (__pycache__ 目錄和 .pyc 檔案)
+  - 移除重複的遷移腳本 `backend/migrate_chat_link_types.py`（保留根目錄的最新版本）
+  - 移除重複的開發指引檔案 `.clinerules/hlaichat-py.md`（保留 `.cursor/rules/hlaichat-py.mdc`）
+  - 移除前端重複的 README 檔案 `frontend/README.md`（保留根目錄的完整版本）
+  - 移除 `.gitignore` 檔案，避免妨礙開發中的讀寫動作
+  - 保留除錯用的 console.log 語句以利日後除錯
+  - 確保專案結構簡潔，移除冗餘檔案但保持功能完整性
+- 2025-05-26: 修復聊天連結管理中憑證選擇功能
+  - 修正前端 API 服務中的憑證路徑，將 `/api/credentials/all` 改為 `/api/credentials/simple`
+  - 修正聊天連結管理頁面中的憑證載入邏輯，使用正確的 API 服務方法
+  - 確保新增 webhook 類型聊天連結時能正確顯示和選擇預設的憑證
+  - 改善前端錯誤處理，移除不必要的回應格式檢查
+  - **功能驗證完成**：新增 webhook 類型連結已可選到預先設定的憑證
+- 2025-05-23: 修復憑證服務類別的方法調用問題
+  - 將 CredentialService 中的靜態方法改為實例方法，支援依賴注入模式
+  - 修正服務類別的初始化方式，接受資料庫 session 參數
+  - 統一錯誤處理方式，使用 ValueError 替代 HTTPException
+  - 確保憑證管理 API 能正常返回資料
+- 2025-05-23: 修復資料庫結構不一致問題
+  - 建立資料庫遷移腳本 migrate_db.py，自動檢查並新增缺少的欄位
+  - 新增 chat_links 表的 webhook_url 和 credential_id 欄位
+  - 新增 credentials 表的外鍵約束
+  - 修復前端 Dashboard 頁面因資料庫欄位缺失導致的錯誤
+- 2025-05-23: 修復前端依賴問題
+  - 安裝缺少的 lodash-es 套件，解決 Credentials.vue 中 debounce 函數的導入錯誤
+  - 確保前端開發服務器能正常啟動
+- 2025-05-23: 修復憑證管理功能的導入錯誤
+  - 修正 credential_routes.py 中的 require_admin 導入錯誤，改為使用 get_current_admin_user_dependency
+  - 移除不存在的 LogService 依賴，改為直接使用 OperationLog 模型記錄日誌
+  - 確保憑證管理 API 能正常運行並與其他模組保持一致
 - 2025-05-21: 修復 AD 帳號登入功能無法被點擊使用的問題
   - 移除 Login.vue 中 AD 標籤的 disabled 屬性，使 AD 標籤始終可點擊
   - 修正 onMounted 函數中獲取 AD 設定狀態的程式碼，確保正確處理 API 回應

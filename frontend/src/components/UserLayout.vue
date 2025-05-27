@@ -113,6 +113,7 @@ export default {
     
     const menuItems = [
       { title: '我的聊天機器人', icon: 'mdi-robot-happy-outline', to: '/user-dashboard' },
+      { title: '聊天對話', icon: 'mdi-chat', to: '/chat' },
       { title: '使用紀錄', icon: 'mdi-clipboard-text-clock-outline', to: '/user-history' }
     ]
     

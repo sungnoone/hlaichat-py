@@ -11,8 +11,10 @@ class ChatLinkBase(BaseModel):
     name: str
     url: Optional[str] = None
     embed_code: Optional[str] = None
-    link_type: str  # 'hosted' 或 'embedded'
+    webhook_url: Optional[str] = None
+    link_type: str  # 'n8n_host_chat', 'n8n_embedded_chat', 'n8n_webhook', 'flowise_chat' (未來擴展)
     description: Optional[str] = None
+    credential_id: Optional[int] = None
 
 # 建立聊天連結時的請求模型
 class ChatLinkCreate(ChatLinkBase):
@@ -29,8 +31,10 @@ class ChatLinkUpdate(BaseModel):
     name: Optional[str] = None
     url: Optional[str] = None
     embed_code: Optional[str] = None
+    webhook_url: Optional[str] = None
     link_type: Optional[str] = None
     description: Optional[str] = None
+    credential_id: Optional[int] = None
     group_ids: Optional[List[int]] = None
 
 # 資料庫中的聊天連結模型

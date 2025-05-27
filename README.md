@@ -9,8 +9,14 @@
 1. **AD 網域驗證登入**：支援 AD 網域驗證登入，管理者可以搜尋 AD 使用者，並加入選定的平台群組。
 2. **平台內建帳號登入**：支援平台內建帳號登入，管理者可以管理平台使用者帳號。
 3. **平台群組管理**：管理者可以管理平台群組，設定群組權限。
-4. **AI 聊天流程對話網址管理**：管理者可以管理 AI 聊天流程對話網址，指派群組可以使用的連結。
-5. **操作紀錄**：記錄使用者的操作，提供管理者查詢分析。
+4. **憑證管理**：管理者可以管理 API 憑證，用於連接 n8n 或 Flowise 等外部服務。
+5. **AI 聊天流程對話網址管理**：管理者可以管理 AI 聊天流程對話網址，指派群組可以使用的連結。支援多種類型：
+   - **n8n Host Chat**：完整的 n8n 聊天網頁
+   - **n8n Embedded Chat**：可嵌入的 n8n 聊天組件
+   - **n8n Webhook**：透過 webhook 觸發的 n8n 流程，提供仿 ChatGPT 介面
+   - **Flowise Chat**：預留支援 Flowise 聊天流程（未來功能）
+6. **仿 ChatGPT 聊天介面**：提供使用者友善的聊天介面，支援 webhook trigger workflow 整合。
+7. **操作紀錄**：記錄使用者的操作，提供管理者查詢分析。
 
 ## 技術架構
 
@@ -124,7 +130,35 @@ VITE_API_BASE_URL=http://localhost:8000
 TIMEZONE=Asia/Taipei
 ```
 
-3. 啟動後端服務：
+3. 初始化資料庫：
+
+首次安裝或更新後，需要執行資料庫初始化或遷移：
+
+```bash
+# 初始化資料庫（首次安裝）
+python init_db.py
+
+# 或執行資料庫遷移（更新現有資料庫）
+python migrate_db.py
+
+# 建立聊天相關表格（新功能）
+python migrate_chat_tables.py
+
+# 更新聊天連結類型（重要：支援未來 Flowise 整合）
+python migrate_chat_link_types.py
+
+# 驗證類型系統正確性（可選）
+python test_chat_link_types.py
+```
+
+資料庫遷移腳本會自動：
+- 檢查並建立缺少的表格
+- 新增缺少的欄位
+- 建立必要的索引和外鍵約束
+- 確保資料庫結構與程式碼模型一致
+- 建立聊天會話和訊息相關表格
+
+4. 啟動後端服務：
 
 在 Windows PowerShell 中：
 ```powershell
@@ -158,6 +192,54 @@ npm run dev
 ```bash
 npm run build
 ```
+
+## 聊天連結類型系統
+
+### 類型命名規範
+
+為了支援未來的 Flowise 整合並避免混淆，本專案採用明確的類型命名系統：
+
+| 類型名稱 | 說明 | 用途 |
+|---------|------|------|
+| `n8n_host_chat` | n8n Host Chat | 完整的 n8n 聊天網頁 |
+| `n8n_embedded_chat` | n8n Embedded Chat | 可嵌入的 n8n 聊天組件 |
+| `n8n_webhook` | n8n Webhook | 透過 webhook 觸發的 n8n 流程 |
+| `flowise_chat` | Flowise Chat | 預留給 Flowise 聊天流程（未來功能） |
+
+### 類型遷移
+
+如果您從舊版本升級，系統會自動將舊的類型名稱遷移到新格式：
+
+- `host_chat` → `n8n_host_chat`
+- `embedded_chat` → `n8n_embedded_chat`
+- `webhook` → `n8n_webhook`
+
+執行遷移腳本：
+```bash
+python migrate_chat_link_types.py
+```
+
+### 擴展性設計
+
+這個類型系統的設計考慮了未來的擴展需求：
+
+1. **平台區分**：明確區分不同 AI 平台（n8n、Flowise 等）
+2. **功能區分**：在同一平台內區分不同的使用方式
+3. **向後相容**：提供自動遷移機制，確保現有資料不受影響
+4. **未來準備**：預留空間支援新的 AI 平台和功能
+
+### 測試驗證
+
+執行類型系統測試腳本驗證系統正確性：
+```bash
+python test_chat_link_types.py
+```
+
+測試腳本會驗證：
+- 所有聊天連結類型符合新的命名規範
+- 資料庫結構完整性（webhook_url 和 credential_id 欄位）
+- API 類型驗證邏輯正確性
+- 舊格式類型被正確拒絕
 
 ## 重要設定
 
@@ -196,6 +278,27 @@ http://localhost:8000/docs
 
 ## 功能說明
 
+### 已完成
+
+- 後端 API 開發 (2025-05-07)
+  - 使用者管理 API
+  - 群組管理 API
+  - 聊天連結管理 API
+  - AD 設定 API
+  - 操作紀錄 API
+  - 認證與授權機制
+- 憑證管理功能開發 (2025-05-23)
+  - 憑證管理 API，包含完整的 CRUD 操作
+  - 前端憑證管理介面，支援新增、編輯、刪除憑證
+  - API Key 顯示/隱藏和複製功能
+  - 憑證與聊天連結的關聯管理
+  - 完整的操作日誌記錄
+  - 資料庫遷移腳本，確保資料庫結構一致性
+- 前端介面開發 (2025-05-14)
+  - 管理員介面
+  - 使用者介面
+  - 前後端整合
+
 ### 使用者管理
 
 - 建立、編輯、刪除使用者
@@ -224,8 +327,14 @@ http://localhost:8000/docs
 ### 聊天連結管理
 
 - 建立、編輯、刪除聊天連結
-- 設定聊天連結類型 (Hosted 或 Embedded)
+- 支援多種聊天連結類型：
+  - **n8n Host Chat**：完整的 n8n 聊天網頁，直接開啟 n8n 提供的聊天介面
+  - **n8n Embedded Chat**：可嵌入的 n8n 聊天組件，提供嵌入代碼供其他網站使用
+  - **n8n Webhook**：透過 webhook 觸發的 n8n 流程，提供仿 ChatGPT 的聊天介面
+  - **Flowise Chat**：預留支援 Flowise 聊天流程（未來功能）
 - 指派群組可以使用的聊天連結
+- **✅ 已完成**：為 webhook 類型連結配置 API 憑證（可從憑證管理中選擇）
+- 支援聊天會話管理和訊息歷程記錄（webhook 類型）
 
 ### AD 設定
 
@@ -237,6 +346,14 @@ http://localhost:8000/docs
 
 - 查詢使用者操作紀錄
 - 依日期、使用者、操作類型等條件搜尋
+
+### 憑證管理
+
+- 建立、編輯、刪除 API 憑證
+- API Key 顯示/隱藏和複製功能
+- 憑證與聊天連結的關聯管理
+- **✅ 已完成**：在新增 webhook 類型聊天連結時可選擇預設的憑證
+- 完整的操作日誌記錄
 
 ## 預設帳號
 
@@ -286,17 +403,124 @@ http://localhost:8000/docs
 2. 資料庫連線字串是否正確
 3. 資料庫使用者是否有足夠的權限
 
+### 資料庫結構不一致錯誤
+
+如果遇到類似以下的資料庫欄位錯誤：
+```
+(psycopg2.errors.UndefinedColumn) column chat_links.webhook_url does not exist
+```
+
+這表示資料庫結構與程式碼模型不一致，解決方法：
+
+1. 執行資料庫遷移腳本：
+```bash
+cd backend
+python migrate_db.py
+```
+
+2. 如果遷移失敗，可以嘗試重新初始化資料庫：
+```bash
+python init_db.py
+```
+
+3. 檢查遷移結果：
+遷移腳本會自動檢查並報告：
+- 缺少的表格和欄位
+- 需要建立的索引和約束
+- 遷移的執行結果
+
+常見的資料庫結構問題：
+- `chat_links` 表缺少 `webhook_url` 或 `credential_id` 欄位
+- `credentials` 表不存在
+- 外鍵約束缺失
+
+### 憑證管理 API 錯誤
+
+如果在憑證管理頁面遇到 500 內部伺服器錯誤，可能的原因和解決方法：
+
+1. **服務類別方法調用錯誤**：
+   - 確認 CredentialService 類別使用實例方法而非靜態方法
+   - 檢查服務類別是否正確初始化並接受資料庫 session
+
+2. **資料庫結構問題**：
+   - 執行資料庫遷移腳本：`python migrate_db.py`
+   - 確認 credentials 表已正確建立
+
+3. **前端依賴問題**：
+   - 確認已安裝 lodash-es 套件：`npm install lodash-es`
+   - 檢查前端控制台是否有導入錯誤
+
+4. **權限問題**：
+   - 確認使用管理員帳號登入
+   - 檢查使用者是否屬於具有管理權限的群組
+
+### 聊天功能問題
+
+#### n8n Webhook 回應解析錯誤
+
+如果在聊天介面中收到錯誤訊息，如 "發生未知錯誤: Expecting value: line 1 column 1 (char 0)"，這通常是由於 webhook 回應格式解析問題導致的。
+
+**常見原因和解決方法**：
+
+1. **n8n "Respond to Webhook" 節點回應格式**：
+   - n8n 的 "Respond to Webhook" 節點通常使用 `output` 欄位而非 `message` 欄位
+   - 系統已優化支援多種回應格式：`output`、`message`、`text`、`content`
+
+2. **JSON 解析錯誤**：
+   - 檢查 n8n workflow 是否正確設定 "Respond to Webhook" 節點
+   - 確認回應內容是有效的 JSON 格式
+   - 系統會自動處理非 JSON 格式的回應，將原始文字作為回應內容
+
+3. **除錯方法**：
+   - 查看後端控制台日誌，會顯示詳細的 webhook 回應內容
+   - 檢查 n8n 執行歷程，確認 workflow 正常完成
+   - 驗證 webhook URL 和 API Key 設定正確
+
+4. **測試建議**：
+   - 先使用簡單的文字回應測試 webhook 連接
+   - 確認 n8n workflow 的 "Respond to Webhook" 節點設定正確
+   - 檢查網路連線和防火牆設定
+
 ### 其他常見問題
 
 ### 環境變數問題
 
-如果 `.env` 檔案中的中文字符顯示亂碼，請使用 UTF-8 編碼重新建立檔案：
+#### .env 檔案中文亂碼
 
+如果 `.env` 檔案中的中文字符顯示亂碼，這通常是由於檔案編碼格式不正確導致的。解決方法：
+
+**方法一：使用專案提供的腳本重新建立**
 ```powershell
-# PowerShell 指令
+# 執行環境變數設定腳本（推薦）
+.\setup_env.ps1
+```
+
+**方法二：手動修復編碼**
+```powershell
+# 備份現有檔案
+Copy-Item .env .env.backup
+
+# 使用 UTF-8 編碼重新建立檔案
 Get-Content -Encoding utf8 .env | Out-File -Encoding utf8 .env.new
 Move-Item -Force .env.new .env
 ```
+
+**方法三：從範本重新建立**
+```powershell
+# 從範本檔案重新建立 .env 檔案
+Get-Content env-template.txt -Encoding UTF8 | Out-File -FilePath .env -Encoding UTF8
+```
+
+**驗證修復結果**
+```powershell
+# 檢查檔案是否正確顯示中文
+Get-Content .env -Encoding UTF8
+```
+
+如果修復後仍有問題，請確認：
+1. 檔案確實使用 UTF-8 編碼儲存
+2. 包含所有必要的環境變數參數
+3. 中文註解能正確顯示
 
 ### 專案清理
 
@@ -380,12 +604,57 @@ VITE_API_BASE_URL=http://localhost:8000
 
 # 時區設定 (台北時間)
 TIMEZONE=Asia/Taipei
+
+# 聊天功能逾時設定 (秒)
+CHAT_WEBHOOK_TIMEOUT=300
+CHAT_REQUEST_TIMEOUT=300
+CHAT_CONNECTION_TIMEOUT=60
+
+# 前端聊天逾時設定 (毫秒)
+VITE_CHAT_TIMEOUT=300000
 ```
 
 > **注意**：請確保 `.env` 檔案使用正確的編碼儲存，避免中文字符顯示亂碼。
+> 
+> **聊天逾時設定**：如需調整聊天功能的逾時時間，請參考 `CHAT_TIMEOUT_CONFIGURATION.md` 文件的詳細說明。
 
 ## 最新更新
 
+- **2025-05-27**: n8n Webhook 回應解析問題修復
+  - **問題解決**：修復聊天介面顯示 "發生未知錯誤: Expecting value: line 1 column 1 (char 0)" 的問題
+  - **回應格式支援**：優化 webhook 回應處理邏輯，支援多種回應格式（`output`、`message`、`text`、`content`）
+  - **除錯增強**：新增詳細的 webhook 回應日誌記錄，包含原始回應內容、狀態碼和標頭資訊
+  - **錯誤處理改善**：改善 JSON 解析錯誤處理，當無法解析 JSON 時將原始文字作為回應內容
+  - **故障排除文件**：更新 README.md 和測試文件，新增 webhook 回應解析問題的解決方案
+- **2025-05-27**: 聊天逾時設定優化與環境變數修復
+  - **逾時設定優化**：將所有聊天相關的逾時參數移至 `.env` 檔案統一管理
+  - 新增後端逾時參數：`CHAT_WEBHOOK_TIMEOUT`、`CHAT_REQUEST_TIMEOUT`、`CHAT_CONNECTION_TIMEOUT`
+  - 新增前端逾時參數：`VITE_CHAT_TIMEOUT`
+  - 修改後端和前端程式碼使用環境變數中的逾時設定，取代硬編碼的逾時值
+  - 建立詳細的逾時設定說明文件 `CHAT_TIMEOUT_CONFIGURATION.md`
+  - **環境變數修復**：修復 `.env` 檔案中文亂碼問題，使用 UTF-8 編碼重新建立檔案
+  - 改進 README.md 中的編碼問題說明，提供多種解決方案和驗證方法
+  - 確保 n8n workflow 有足夠時間處理複雜的 AI 請求
+- **2025-05-26**: 專案清理和結構優化
+  - 移除冗餘檔案：Python 編譯快取、重複的遷移腳本、重複的文件
+  - 移除 `.gitignore` 檔案，避免妨礙開發中的讀寫動作
+  - 保留除錯用的 console.log 語句以利日後維護
+  - 確保專案結構簡潔但功能完整，符合開發指引要求
+- **2025-05-24**: 聊天連結類型重構，支援未來 Flowise 整合
+  - 重新設計類型命名系統：`host_chat` → `n8n_host_chat`、`embedded_chat` → `n8n_embedded_chat`、`webhook` → `n8n_webhook`
+  - 建立資料庫遷移腳本 `migrate_chat_link_types.py`，成功更新 2 個現有聊天連結
+  - 建立測試腳本 `test_chat_link_types.py` 驗證系統正確性
+  - 更新前後端所有相關的類型檢查和顯示邏輯
+  - 更新測試功能文件，新增類型系統測試指引
+- **2025-05-24**: 完善 webhook trigger workflow 仿 ChatGPT 聊天介面設計
+  - 新增聊天會話和訊息資料模型，建立完整的聊天功能
+  - 實作聊天服務類別，支援會話管理和 webhook 整合
+  - 建立仿 ChatGPT 的前端聊天介面組件
+  - 支援多會話管理、訊息歷程記錄和即時對話
+- **2025-05-23**: 修復憑證服務類別的方法調用問題，確保憑證管理功能完全正常運作
+- **2025-05-23**: 修復資料庫結構不一致問題，建立資料庫遷移腳本自動檢查並新增缺少的欄位
+- **2025-05-23**: 修復前端依賴問題，安裝缺少的 lodash-es 套件，解決 Credentials.vue 中的導入錯誤
+- **2025-05-23**: 完成憑證管理功能開發，包含後端 API 和前端管理介面
 - **2025-05-22**: 修復AD使用者加入平台群組時出現「Field required: password」錯誤，為AD使用者自動生成隨機密碼
 - **2025-05-21**: 修復 AD 帳號登入功能無法被點擊使用的問題，確保 AD 登入功能不受 AD 設定狀態的影響
 - **2025-05-18**: 在 main.js 中引入 Material Design Icons (MDI) 的 CSS 文件，修正不顯示圖示的問題

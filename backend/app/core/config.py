@@ -38,6 +38,11 @@ class Settings(BaseSettings):
     # 時區設定
     TIMEZONE: str = "Asia/Taipei"
     
+    # 聊天功能逾時設定 (秒)
+    CHAT_WEBHOOK_TIMEOUT: int = 300
+    CHAT_REQUEST_TIMEOUT: int = 300
+    CHAT_CONNECTION_TIMEOUT: int = 60
+    
     # 前端設定 (用於整合 .env 檔案)
     VITE_API_BASE_URL: Optional[str] = None
     

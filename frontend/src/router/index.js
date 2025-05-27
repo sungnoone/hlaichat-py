@@ -40,6 +40,12 @@ const routes = [
     meta: { requiresAuth: true, requiresAdmin: true }
   },
   {
+    path: '/credentials',
+    name: 'Credentials',
+    component: () => import('../views/admin/Credentials.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
     path: '/ad-config',
     name: 'ADConfig',
     component: () => import('../views/admin/ADConfig.vue'),
@@ -73,6 +79,12 @@ const routes = [
     path: '/user-history',
     name: 'UserHistory',
     component: () => import('../views/user/UserHistory.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/chat',
+    name: 'UserChat',
+    component: () => import('../views/user/UserChat.vue'),
     meta: { requiresAuth: true }
   }
 ]

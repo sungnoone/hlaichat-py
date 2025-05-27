@@ -8,8 +8,8 @@ from typing import List
 
 from app.core.config import settings
 from app.db.database import get_db, init_db
-from app.db.models import User, Group, ChatLink
-from app.apis import auth_routes, user_routes, group_routes, chat_link_routes, ad_config_routes, log_routes
+from app.db.models import User, Group, ChatLink, Credential
+from app.apis import auth_routes, user_routes, group_routes, chat_link_routes, ad_config_routes, log_routes, credential_routes, chat_routes
 from app.schemas.common_schemas import ErrorResponse, DataResponse
 
 # 設定日誌
@@ -83,13 +83,17 @@ def get_stats(db: Session = Depends(get_db)):
         # 查詢聊天連結數量
         chat_link_count = db.query(ChatLink).count()
         
+        # 查詢憑證數量
+        credential_count = db.query(Credential).count()
+        
         return DataResponse(
             success=True,
             message="取得統計資料成功",
             data={
                 "userCount": user_count,
                 "groupCount": group_count,
-                "chatLinkCount": chat_link_count
+                "chatLinkCount": chat_link_count,
+                "credentialCount": credential_count
             }
         )
     except Exception as e:
@@ -100,7 +104,8 @@ def get_stats(db: Session = Depends(get_db)):
             data={
                 "userCount": 0,
                 "groupCount": 0,
-                "chatLinkCount": 0
+                "chatLinkCount": 0,
+                "credentialCount": 0
             }
         )
 
@@ -109,8 +114,10 @@ app.include_router(auth_routes.router, prefix="/api/auth", tags=["認證"])
 app.include_router(user_routes.router, prefix="/api/users", tags=["使用者"])
 app.include_router(group_routes.router, prefix="/api/groups", tags=["群組"])
 app.include_router(chat_link_routes.router, prefix="/api/chat-links", tags=["聊天連結"])
+app.include_router(credential_routes.router, prefix="/api/credentials", tags=["憑證管理"])
 app.include_router(ad_config_routes.router, prefix="/api/ad-config", tags=["AD 設定"])
 app.include_router(log_routes.router, prefix="/api/logs", tags=["操作紀錄"])
+app.include_router(chat_routes.router, prefix="/api", tags=["聊天"])
 
 # 啟動事件
 @app.on_event("startup")

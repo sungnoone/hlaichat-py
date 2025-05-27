@@ -1,4 +1,5 @@
 # HLAIChat 專案環境變數設定
+
 # 應用程式設定
 APP_NAME=HLAIChat
 SECRET_KEY=your_secret_key_here
@@ -22,4 +23,12 @@ AD_BIND_PASSWORD=
 VITE_API_BASE_URL=http://localhost:8000
 
 # 時區設定 (台北時間)
-TIMEZONE=Asia/Taipei 
+TIMEZONE=Asia/Taipei
+
+# 聊天功能逾時設定 (秒)
+CHAT_WEBHOOK_TIMEOUT=300
+CHAT_REQUEST_TIMEOUT=300
+CHAT_CONNECTION_TIMEOUT=60
+
+# 前端聊天逾時設定 (毫秒)
+VITE_CHAT_TIMEOUT=300000

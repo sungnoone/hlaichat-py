@@ -75,7 +75,7 @@ def get_chat_links_admin(
         page: 頁碼
         page_size: 每頁筆數
         name: 聊天連結名稱 (模糊搜尋)
-        link_type: 連結類型 ('hosted' 或 'embedded')
+        link_type: 連結類型 ('n8n_host_chat', 'n8n_embedded_chat' 或 'n8n_webhook')
         current_user: 目前使用者 (需為管理者)
         db: 資料庫 session
         
@@ -143,7 +143,7 @@ def get_chat_links(
         page: 頁碼
         page_size: 每頁筆數
         name: 聊天連結名稱 (模糊搜尋)
-        link_type: 連結類型 ('hosted' 或 'embedded')
+        link_type: 連結類型 ('n8n_host_chat', 'n8n_embedded_chat' 或 'n8n_webhook')
         current_user: 目前使用者 (需有使用聊天連結權限)
         db: 資料庫 session
         
@@ -332,23 +332,30 @@ def create_chat_link(
         HTTPException: 參數錯誤
     """
     # 檢查連結類型
-    if chat_link_data.link_type not in ["hosted", "embedded"]:
+    valid_types = ["n8n_host_chat", "n8n_embedded_chat", "n8n_webhook"]
+    if chat_link_data.link_type not in valid_types:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"連結類型錯誤 (應為 'hosted' 或 'embedded')",
+            detail=f"連結類型錯誤 (應為 {', '.join(valid_types)})",
         )
     
     # 檢查連結類型對應的欄位
-    if chat_link_data.link_type == "hosted" and not chat_link_data.url:
+    if chat_link_data.link_type == "n8n_host_chat" and not chat_link_data.url:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Hosted Chat 類型必須提供 url",
+            detail="n8n Host Chat 類型必須提供 url",
         )
     
-    if chat_link_data.link_type == "embedded" and not chat_link_data.embed_code:
+    if chat_link_data.link_type == "n8n_embedded_chat" and not chat_link_data.embed_code:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Embedded Chat 類型必須提供 embed_code",
+            detail="n8n Embedded Chat 類型必須提供 embed_code",
+        )
+    
+    if chat_link_data.link_type == "n8n_webhook" and not chat_link_data.webhook_url:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="n8n Webhook 類型必須提供 webhook_url",
         )
     
     # 建立聊天連結
@@ -356,8 +363,10 @@ def create_chat_link(
         name=chat_link_data.name,
         url=chat_link_data.url,
         embed_code=chat_link_data.embed_code,
+        webhook_url=chat_link_data.webhook_url,
         link_type=chat_link_data.link_type,
         description=chat_link_data.description,
+        credential_id=chat_link_data.credential_id,
     )
     
     # 加入群組
@@ -425,10 +434,11 @@ def update_chat_link(
         )
     
     # 檢查連結類型
-    if chat_link_data.link_type is not None and chat_link_data.link_type not in ["hosted", "embedded"]:
+    valid_types = ["n8n_host_chat", "n8n_embedded_chat", "n8n_webhook"]
+    if chat_link_data.link_type is not None and chat_link_data.link_type not in valid_types:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"連結類型錯誤 (應為 'hosted' 或 'embedded')",
+            detail=f"連結類型錯誤 (應為 {', '.join(valid_types)})",
         )
     
     # 更新聊天連結資料
@@ -438,10 +448,14 @@ def update_chat_link(
         chat_link.url = chat_link_data.url
     if chat_link_data.embed_code is not None:
         chat_link.embed_code = chat_link_data.embed_code
+    if chat_link_data.webhook_url is not None:
+        chat_link.webhook_url = chat_link_data.webhook_url
     if chat_link_data.link_type is not None:
         chat_link.link_type = chat_link_data.link_type
     if chat_link_data.description is not None:
         chat_link.description = chat_link_data.description
+    if chat_link_data.credential_id is not None:
+        chat_link.credential_id = chat_link_data.credential_id
     
     # 更新群組
     if chat_link_data.group_ids is not None:
