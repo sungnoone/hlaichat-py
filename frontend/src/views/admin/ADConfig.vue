@@ -137,6 +137,15 @@
                 @click:append-inner="searchAdUsers"
               ></v-text-field>
               
+              <v-select
+                v-model="maxResults"
+                label="搜尋結果數量"
+                :items="maxResultsOptions"
+                variant="outlined"
+                class="mb-3"
+                :disabled="!adStatus.configured"
+              ></v-select>
+              
               <v-btn
                 color="primary"
                 block
@@ -153,32 +162,75 @@
             <v-divider class="my-4"></v-divider>
             
             <div v-if="adUsers.length > 0">
-              <h3 class="text-subtitle-1 mb-2">搜尋結果</h3>
+              <div class="d-flex justify-space-between align-center mb-2">
+                <h3 class="text-subtitle-1">搜尋結果</h3>
+                <v-chip size="small" color="primary" variant="outlined">
+                  {{ adUsers.length }} / {{ maxResults }} 筆
+                </v-chip>
+              </div>
               
-              <v-list lines="two">
-                <v-list-item
-                  v-for="user in adUsers"
-                  :key="user.guid"
-                  :title="user.full_name"
-                  :subtitle="user.username"
-                >
-                  <template v-slot:prepend>
-                    <v-avatar color="info" class="mr-3">
-                      <span class="text-white">{{ getUserInitials(user.full_name) }}</span>
-                    </v-avatar>
-                  </template>
+              <v-alert
+                v-if="adUsers.length === maxResults"
+                color="info"
+                variant="tonal"
+                class="mb-3"
+                density="compact"
+              >
+                <v-icon start>mdi-information</v-icon>
+                已達到搜尋結果上限，可能還有更多符合條件的使用者
+              </v-alert>
+              
+              <v-list lines="three">
+                <template v-for="(user, index) in adUsers" :key="user.guid || `user-${index}`">
+                  <v-list-item class="mb-2">
+                    <template v-slot:prepend>
+                      <v-avatar color="info" class="mr-3">
+                        <span class="text-white">{{ getUserInitials(user.display_name || user.full_name) }}</span>
+                      </v-avatar>
+                    </template>
+                    
+                    <v-list-item-title class="font-weight-medium">
+                      {{ user.display_name || user.full_name }}
+                      <v-chip v-if="user.title" size="x-small" color="blue-grey" class="ml-2">
+                        {{ user.title }}
+                      </v-chip>
+                    </v-list-item-title>
+                    
+                    <v-list-item-subtitle class="mt-1">
+                      <div class="d-flex flex-column">
+                        <span class="text-body-2">
+                          <v-icon size="small" class="mr-1">mdi-account</v-icon>
+                          {{ user.username }}
+                        </span>
+                        <span v-if="user.email" class="text-body-2 mt-1">
+                          <v-icon size="small" class="mr-1">mdi-email</v-icon>
+                          {{ user.email }}
+                        </span>
+                        <span v-if="user.department" class="text-body-2 mt-1">
+                          <v-icon size="small" class="mr-1">mdi-domain</v-icon>
+                          {{ user.department }}
+                        </span>
+                        <span v-if="user.description" class="text-body-2 mt-1 text-grey-darken-1">
+                          <v-icon size="small" class="mr-1">mdi-information</v-icon>
+                          {{ user.description }}
+                        </span>
+                      </div>
+                    </v-list-item-subtitle>
+                    
+                    <template v-slot:append>
+                      <v-btn
+                        size="small"
+                        icon="mdi-account-plus"
+                        variant="text"
+                        color="primary"
+                        @click="selectAdUser(user)"
+                        title="加入系統使用者"
+                      ></v-btn>
+                    </template>
+                  </v-list-item>
                   
-                  <template v-slot:append>
-                    <v-btn
-                      size="small"
-                      icon="mdi-account-plus"
-                      variant="text"
-                      color="primary"
-                      @click="selectAdUser(user)"
-                      title="加入系統使用者"
-                    ></v-btn>
-                  </template>
-                </v-list-item>
+                  <v-divider v-if="index < adUsers.length - 1" :key="`divider-${index}`"></v-divider>
+                </template>
               </v-list>
             </div>
             
@@ -199,7 +251,45 @@
         </v-card-title>
         
         <v-card-text class="pt-4">
-          <p class="mb-4">將 AD 使用者 <strong>{{ userDialog.user.full_name }}</strong> ({{ userDialog.user.username }}) 加入系統</p>
+          <!-- 使用者資訊卡片 -->
+          <v-card variant="outlined" class="mb-4">
+            <v-card-text>
+              <div class="d-flex align-center mb-3">
+                <v-avatar color="info" class="mr-3">
+                  <span class="text-white">{{ getUserInitials(userDialog.user.display_name || userDialog.user.full_name) }}</span>
+                </v-avatar>
+                <div>
+                  <h3 class="text-h6">{{ userDialog.user.display_name || userDialog.user.full_name }}</h3>
+                  <p class="text-body-2 text-grey-darken-1 mb-0">即將加入系統使用者</p>
+                </div>
+              </div>
+              
+              <v-divider class="mb-3"></v-divider>
+              
+              <div class="d-flex flex-column">
+                <div class="d-flex align-center mb-2">
+                  <v-icon size="small" class="mr-2">mdi-account</v-icon>
+                  <span class="text-body-2"><strong>帳號：</strong>{{ userDialog.user.username }}</span>
+                </div>
+                <div v-if="userDialog.user.email" class="d-flex align-center mb-2">
+                  <v-icon size="small" class="mr-2">mdi-email</v-icon>
+                  <span class="text-body-2"><strong>信箱：</strong>{{ userDialog.user.email }}</span>
+                </div>
+                <div v-if="userDialog.user.department" class="d-flex align-center mb-2">
+                  <v-icon size="small" class="mr-2">mdi-domain</v-icon>
+                  <span class="text-body-2"><strong>部門：</strong>{{ userDialog.user.department }}</span>
+                </div>
+                <div v-if="userDialog.user.title" class="d-flex align-center mb-2">
+                  <v-icon size="small" class="mr-2">mdi-badge-account</v-icon>
+                  <span class="text-body-2"><strong>職稱：</strong>{{ userDialog.user.title }}</span>
+                </div>
+                <div v-if="userDialog.user.description" class="d-flex align-start mb-2">
+                  <v-icon size="small" class="mr-2 mt-1">mdi-information</v-icon>
+                  <span class="text-body-2"><strong>描述：</strong>{{ userDialog.user.description }}</span>
+                </div>
+              </div>
+            </v-card-text>
+          </v-card>
           
           <v-divider class="mb-4"></v-divider>
           
@@ -281,7 +371,11 @@ export default {
       user: {
         username: '',
         full_name: '',
+        display_name: '',
         email: '',
+        department: '',
+        description: '',
+        title: '',
         guid: ''
       },
       selectedGroups: []
@@ -295,6 +389,9 @@ export default {
     
     const adForm = ref(null)
     const searchForm = ref(null)
+    
+    const maxResults = ref(10)
+    const maxResultsOptions = [10, 20, 30, 40, 50]
     
     // 計算屬性：是否可以測試連線
     const canTest = computed(() => {
@@ -398,7 +495,7 @@ export default {
       try {
         const response = await axios.post('/api/ad-config/search-users', {
           search_term: searchQuery.value,
-          max_results: 10
+          max_results: maxResults.value
         })
         
         if (response.data.success) {
@@ -498,7 +595,9 @@ export default {
       searchAdUsers,
       selectAdUser,
       addAdUser,
-      getUserInitials
+      getUserInitials,
+      maxResults,
+      maxResultsOptions
     }
   }
 }

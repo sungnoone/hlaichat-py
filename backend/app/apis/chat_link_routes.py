@@ -19,29 +19,45 @@ router = APIRouter()
 @router.get("/recent", response_model=DataResponse[List[ChatLinkSchema]])
 def get_recent_chat_links(
     limit: int = Query(5, ge=1, le=20),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(check_user_can_use_chat_links),
     db: Session = Depends(get_db)
 ):
     """
-    取得最近的聊天連結
+    取得最近的聊天連結 (僅限使用者有權限的連結)
     
     Args:
         limit: 回傳筆數上限
-        current_user: 目前使用者
+        current_user: 目前使用者 (需有使用聊天連結權限)
         db: 資料庫 session
         
     Returns:
         DataResponse[List[ChatLinkSchema]]: 最近的聊天連結
     """
     try:
-        # 建立查詢
-        query = db.query(ChatLink)
+        # 取得使用者所屬群組的 ID 列表
+        group_ids = [group.id for group in current_user.groups]
+        
+        # 建立查詢，只顯示使用者有權限的聊天連結
+        query = db.query(ChatLink).join(
+            ChatLink.groups
+        ).filter(
+            Group.id.in_(group_ids)
+        )
         
         # 排序並限制筆數
         query = query.order_by(ChatLink.created_at.desc()).limit(limit)
         
         # 取得聊天連結列表
         chat_links = query.all()
+        
+        # 記錄操作
+        log = OperationLog(
+            user_id=current_user.id,
+            action="GET_RECENT_CHAT_LINKS",
+            details=f"取得最近聊天連結 (限制: {limit})",
+        )
+        db.add(log)
+        db.commit()
         
         return DataResponse(
             success=True,
@@ -295,8 +311,8 @@ def get_chat_link(
     client_ip = request.client.host if request.client else None
     log = OperationLog(
         user_id=current_user.id,
-        action="GET_CHAT_LINK",
-        details=f"取得聊天連結資料 (ID: {chat_link_id})",
+        action="USE_CHAT_LINK",
+        details=f"使用聊天連結 (ID: {chat_link.id}, 名稱: {chat_link.name}, 類型: {chat_link.link_type})",
         ip_address=client_ip,
     )
     db.add(log)

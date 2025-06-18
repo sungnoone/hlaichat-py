@@ -274,7 +274,16 @@ def search_ad_users(
         search_filter = f"(&(objectClass=user)(objectCategory=person)(|(cn=*{search_data.search_term}*)(sAMAccountName=*{search_data.search_term}*)(mail=*{search_data.search_term}*)))"
         
         # 設定要取得的屬性
-        attrs = ["sAMAccountName", "cn", "mail", "department", "objectGUID"]
+        attrs = [
+            "sAMAccountName",  # 使用者帳號
+            "cn",  # 一般名稱
+            "displayName",  # 顯示名稱
+            "mail",  # 電子郵件
+            "department",  # 部門
+            "description",  # 描述
+            "title",  # 職稱
+            "objectGUID"  # GUID
+        ]
         
         # 搜尋 AD 使用者
         base_dn = f"dc={ad_config.domain_name.replace('.', ',dc=')}"
@@ -288,26 +297,44 @@ def search_ad_users(
         
         # 處理搜尋結果
         ad_users = []
-        for entry in conn.entries:
-            username = entry.sAMAccountName.value if hasattr(entry, 'sAMAccountName') else ""
-            full_name = entry.cn.value if hasattr(entry, 'cn') else ""
-            email = entry.mail.value if hasattr(entry, 'mail') else None
-            department = entry.department.value if hasattr(entry, 'department') else None
-            guid = ""
+        for i, entry in enumerate(conn.entries):
+            username = entry.sAMAccountName.value if hasattr(entry, 'sAMAccountName') and entry.sAMAccountName.value else ""
+            full_name = entry.cn.value if hasattr(entry, 'cn') and entry.cn.value else ""
+            display_name = entry.displayName.value if hasattr(entry, 'displayName') and entry.displayName.value else None
+            email = entry.mail.value if hasattr(entry, 'mail') and entry.mail.value else None
+            department = entry.department.value if hasattr(entry, 'department') and entry.department.value else None
+            description = entry.description.value if hasattr(entry, 'description') and entry.description.value else None
+            title = entry.title.value if hasattr(entry, 'title') and entry.title.value else None
             
-            # 安全處理 objectGUID，檢查是否有 hex 方法
-            if hasattr(entry, 'objectGUID'):
+            # 處理 GUID，確保總是有一個有效的識別符
+            guid = ""
+            if hasattr(entry, 'objectGUID') and entry.objectGUID.value:
                 guid_value = entry.objectGUID.value
-                if hasattr(guid_value, 'hex'):
-                    guid = guid_value.hex()
-                elif isinstance(guid_value, str):
-                    guid = guid_value
+                try:
+                    if hasattr(guid_value, 'hex'):
+                        guid = guid_value.hex()
+                    elif isinstance(guid_value, str):
+                        guid = guid_value
+                    elif isinstance(guid_value, bytes):
+                        guid = guid_value.hex()
+                except Exception as e:
+                    logger.warning(f"無法處理 GUID: {e}")
+                    guid = f"fallback_{username}_{i}"
+            
+            # 如果 GUID 仍然為空，使用備用識別符
+            if not guid:
+                guid = f"fallback_{username}_{i}" if username else f"fallback_user_{i}"
+            
+            logger.debug(f"處理使用者: {username}, GUID: {guid}")
             
             ad_users.append(ADUser(
                 username=username,
                 full_name=full_name,
+                display_name=display_name,
                 email=email,
                 department=department,
+                description=description,
+                title=title,
                 guid=guid,
             ))
         

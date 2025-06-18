@@ -46,6 +46,30 @@ class ChatMessageResponse(BaseModel):
     class Config:
         from_attributes = True
 
+# Embedded Chat 請求模型
+class EmbeddedChatRequest(BaseModel):
+    """發送到 n8n Embedded Chat 的請求模型"""
+    link_id: int = Field(..., description="聊天連結ID")
+    message: str = Field(..., description="使用者訊息內容")
+    session_id: str = Field(..., description="對話 session 唯一識別碼")
+
+# Webhook Chat 請求模型
+class WebhookChatRequest(BaseModel):
+    """發送到 n8n Webhook 的請求模型"""
+    link_id: int = Field(..., description="聊天連結ID")
+    message: str = Field(..., description="使用者訊息內容")
+    session_id: str = Field(..., description="對話 session 唯一識別碼")
+    user_id: int = Field(..., description="當前登入使用者ID")
+    user_name: str = Field(..., description="使用者姓名")
+
+# 聊天回應模型
+class ChatResponse(BaseModel):
+    """聊天回應模型"""
+    success: bool = Field(..., description="是否成功")
+    response: str = Field(..., description="AI 回應內容")
+    processing_time: Optional[int] = Field(None, description="處理時間(毫秒)")
+    error: Optional[str] = Field(None, description="錯誤訊息")
+
 # Webhook 請求模型
 class WebhookRequest(BaseModel):
     """發送到 n8n webhook 的請求模型"""

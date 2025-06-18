@@ -28,7 +28,7 @@
         md="6"
         lg="4"
       >
-        <v-card class="mx-auto h-100 d-flex flex-column">
+        <v-card class="mx-auto h-100 d-flex flex-column" hover>
           <v-card-item>
             <v-card-title>{{ link.name }}</v-card-title>
             <v-card-subtitle v-if="link.description">
@@ -40,10 +40,10 @@
             <div>
               <v-chip 
                 size="small" 
-                :color="link.link_type === 'hosted' ? 'primary' : 'secondary'"
+                :color="getLinkTypeColor(link.link_type)"
                 class="mb-4"
               >
-                {{ link.link_type === 'hosted' ? '網址' : '嵌入代碼' }}
+                {{ getLinkTypeText(link.link_type) }}
               </v-chip>
             </div>
 
@@ -56,70 +56,24 @@
           <v-card-actions class="mt-auto">
             <v-spacer></v-spacer>
             <v-btn
-              v-if="link.link_type === 'hosted'"
               color="primary"
-              :href="link.url"
-              target="_blank"
-              prepend-icon="mdi-open-in-new"
+              @click="openChatLink(link)"
+              :prepend-icon="getLinkTypeIcon(link.link_type)"
             >
-              開啟聊天
-            </v-btn>
-            <v-btn
-              v-else
-              color="primary"
-              @click="openEmbeddedChat(link)"
-              prepend-icon="mdi-code-tags"
-            >
-              檢視嵌入代碼
+              {{ getLinkTypeButtonText(link.link_type) }}
             </v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
 
-    <!-- 嵌入代碼對話框 -->
-    <v-dialog v-model="embeddedDialog.show" max-width="700px">
-      <v-card>
-        <v-card-title class="bg-primary text-white">
-          <span>{{ embeddedDialog.title }}</span>
-          <v-spacer></v-spacer>
-          <v-btn icon="mdi-close" variant="text" color="white" @click="embeddedDialog.show = false"></v-btn>
-        </v-card-title>
-        <v-card-text class="pt-4">
-          <v-alert type="info" density="compact" class="mb-3">
-            您可以複製以下代碼並嵌入到您的網頁中。
-          </v-alert>
-          <v-textarea
-            v-model="embeddedDialog.content"
-            readonly
-            auto-grow
-            variant="outlined"
-            rows="8"
-            label="嵌入代碼"
-          ></v-textarea>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" variant="text" @click="copyEmbeddedCode">
-            <v-icon start>mdi-content-copy</v-icon>
-            複製代碼
-          </v-btn>
-          <v-btn color="grey" variant="text" @click="embeddedDialog.show = false">
-            關閉
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
 
-    <!-- 複製成功提示 -->
-    <v-snackbar v-model="copySuccess" :timeout="2000" color="success">
-      已複製到剪貼簿
-    </v-snackbar>
   </UserLayout>
 </template>
 
 <script>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import UserLayout from '@/components/UserLayout.vue'
 import axios from 'axios'
 
@@ -129,13 +83,8 @@ export default {
     UserLayout
   },
   setup() {
+    const router = useRouter()
     const chatLinks = ref([])
-    const embeddedDialog = ref({
-      show: false,
-      title: '',
-      content: ''
-    })
-    const copySuccess = ref(false)
     const loading = ref(false)
 
     // 格式化日期
@@ -144,25 +93,95 @@ export default {
       return date.toLocaleDateString('zh-TW')
     }
 
-    // 開啟嵌入代碼對話框
-    const openEmbeddedChat = (link) => {
-      embeddedDialog.value = {
-        show: true,
-        title: link.name,
-        content: link.embed_code
+    // 獲取連結類型顏色
+    const getLinkTypeColor = (linkType) => {
+      switch (linkType) {
+        case 'n8n_host_chat':
+          return 'primary'
+        case 'n8n_embedded_chat':
+          return 'secondary'
+        case 'n8n_webhook':
+          return 'success'
+        default:
+          return 'grey'
       }
     }
 
-    // 複製嵌入代碼
-    const copyEmbeddedCode = () => {
-      navigator.clipboard.writeText(embeddedDialog.value.content)
-        .then(() => {
-          copySuccess.value = true
-        })
-        .catch(error => {
-          console.error('複製失敗:', error)
-        })
+    // 獲取連結類型文字
+    const getLinkTypeText = (linkType) => {
+      switch (linkType) {
+        case 'n8n_host_chat':
+          return 'Hosted 聊天'
+        case 'n8n_embedded_chat':
+          return 'Embedded 聊天'
+        case 'n8n_webhook':
+          return 'Webhook 聊天'
+        default:
+          return '未知類型'
+      }
     }
+
+    // 獲取連結類型圖標
+    const getLinkTypeIcon = (linkType) => {
+      switch (linkType) {
+        case 'n8n_host_chat':
+          return 'mdi-open-in-new'
+        case 'n8n_embedded_chat':
+          return 'mdi-chat'
+        case 'n8n_webhook':
+          return 'mdi-chat'
+        default:
+          return 'mdi-help'
+      }
+    }
+
+    // 獲取連結類型按鈕文字
+    const getLinkTypeButtonText = (linkType) => {
+      switch (linkType) {
+        case 'n8n_host_chat':
+          return '開啟聊天'
+        case 'n8n_embedded_chat':
+          return '開始對話'
+        case 'n8n_webhook':
+          return '開始對話'
+        default:
+          return '開啟'
+      }
+    }
+
+    // 開啟聊天連結
+    const openChatLink = (link) => {
+      switch (link.link_type) {
+        case 'n8n_host_chat':
+          // Hosted 類型：另開新分頁導向聊天網址
+          window.open(link.url, '_blank')
+          break
+        case 'n8n_embedded_chat':
+          // Embedded 類型：進入嵌入 n8n 對話元件的頁面
+          router.push({
+            name: 'UserChat',
+            query: {
+              linkId: link.id,
+              type: 'embedded'
+            }
+          })
+          break
+        case 'n8n_webhook':
+          // Webhook 類型：進入專屬自訂的 ChatGPT 風格對話介面
+          router.push({
+            name: 'UserChat',
+            query: {
+              linkId: link.id,
+              type: 'webhook'
+            }
+          })
+          break
+        default:
+          console.error('未知的連結類型:', link.link_type)
+      }
+    }
+
+
 
     // 獲取可用的聊天連結
     const fetchChatLinks = async () => {
@@ -185,12 +204,13 @@ export default {
 
     return {
       chatLinks,
-      embeddedDialog,
-      copySuccess,
       loading,
       formatDate,
-      openEmbeddedChat,
-      copyEmbeddedCode
+      getLinkTypeColor,
+      getLinkTypeText,
+      getLinkTypeIcon,
+      getLinkTypeButtonText,
+      openChatLink
     }
   }
 }

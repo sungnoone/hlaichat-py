@@ -3,18 +3,25 @@
     <v-navigation-drawer
       v-model="drawer"
       :rail="rail"
-      @mouseenter="rail = false"
-      @mouseleave="rail = true"
+      @mouseenter="handleMouseEnter"
+      @mouseleave="handleMouseLeave"
       permanent
       color="secondary"
       theme="dark"
     >
       <v-list-item
-        prepend-avatar="/logo.png"
         :title="rail ? '' : 'AI Chat 管理平台'"
         nav
       >
         <template v-slot:append>
+          <v-btn
+            variant="text"
+            :icon="isPinned ? 'mdi-pin' : 'mdi-pin-outline'"
+            @click.stop="togglePin"
+            :color="isPinned ? 'warning' : 'grey-lighten-1'"
+            class="mr-1"
+            size="small"
+          ></v-btn>
           <v-btn
             variant="text"
             icon="mdi-chevron-left"
@@ -110,6 +117,7 @@ export default {
     const rail = ref(true)
     const router = useRouter()
     const user = ref(null)
+    const isPinned = ref(false)
     
     const menuItems = [
       { title: '儀表板', icon: 'mdi-view-dashboard-outline', to: '/dashboard' },
@@ -163,6 +171,29 @@ export default {
       }
     }
     
+    const handleMouseEnter = () => {
+      // 滑鼠移入時總是展開導覽列
+      rail.value = false
+    }
+    
+    const handleMouseLeave = () => {
+      // 只有在未釘選狀態下才會自動收合
+      if (!isPinned.value) {
+        rail.value = true
+      }
+      // 釘選狀態下滑鼠移出時保持展開
+    }
+    
+    const togglePin = () => {
+      // 切換釘選狀態
+      isPinned.value = !isPinned.value
+      
+      // 如果取消釘選且滑鼠不在導覽列上，則自動收合
+      if (!isPinned.value) {
+        rail.value = true
+      }
+    }
+    
     return {
       drawer,
       rail,
@@ -170,7 +201,11 @@ export default {
       pageTitle,
       user,
       userInitials,
-      logout
+      logout,
+      isPinned,
+      handleMouseEnter,
+      handleMouseLeave,
+      togglePin
     }
   }
 }

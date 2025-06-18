@@ -136,9 +136,9 @@ export default {
     const fetchChatHistory = async () => {
       loading.value = true
       try {
-        const response = await axios.get('/api/user/chat-history')
+        const response = await axios.get('/api/user-profiles/chat-history')
         if (response.data.success) {
-          chatHistory.value = response.data.items || []
+          chatHistory.value = response.data.data || []
         }
       } catch (error) {
         console.error('獲取聊天紀錄失敗:', error)
@@ -151,7 +151,8 @@ export default {
     const fetchOperationHistory = async () => {
       loading.value = true
       try {
-        const response = await axios.get('/api/user/operation-logs')
+        const response = await axios.get('/api/user-profiles/operation-logs')
+        
         if (response.data.success) {
           operationHistory.value = response.data.data || []
         }

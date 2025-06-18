@@ -17,6 +17,8 @@ export default defineConfig(({ command, mode }) => {
       }
     },
     server: {
+      host: '0.0.0.0', // 允許所有 IP 連入
+      port: 3000, // 指定埠號
       proxy: {
         '/api': {
           target: env.VITE_API_BASE_URL || 'http://localhost:8000',

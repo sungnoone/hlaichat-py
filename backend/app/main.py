@@ -7,9 +7,10 @@ import logging
 from typing import List
 
 from app.core.config import settings
+from app.core.security import get_current_admin_user
 from app.db.database import get_db, init_db
-from app.db.models import User, Group, ChatLink, Credential
-from app.apis import auth_routes, user_routes, group_routes, chat_link_routes, ad_config_routes, log_routes, credential_routes, chat_routes
+from app.db.models import User, Group, ChatLink, Credential, OperationLog
+from app.apis import auth_routes, user_routes, group_routes, chat_link_routes, ad_config_routes, log_routes, credential_routes, chat_routes, user_profile_routes
 from app.schemas.common_schemas import ErrorResponse, DataResponse
 
 # 設定日誌
@@ -32,7 +33,15 @@ app = FastAPI(
 # 設定 CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173", "http://127.0.0.1:3000"],  # 允許更多前端來源
+    allow_origins=[
+        "http://localhost:5173", 
+        "http://localhost:3000", 
+        "http://127.0.0.1:5173", 
+        "http://127.0.0.1:3000",
+        "http://192.168.1.12:3000",  # 新增 IP 位址存取
+        "http://192.168.1.12:5173",  # 新增 IP 位址存取
+        "http://acm1.hanlin.com.tw" #生產環境實際主機FQDN
+    ],
     allow_credentials=True,
     allow_methods=["*"],  # 允許所有方法
     allow_headers=["*"],  # 允許所有標頭
@@ -63,12 +72,16 @@ def health_check():
 
 # 取得系統統計資料
 @app.get("/api/stats", response_model=DataResponse)
-def get_stats(db: Session = Depends(get_db)):
+def get_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_admin_user)
+):
     """
-    取得系統統計資料
+    取得系統統計資料 (僅管理者)
     
     Args:
         db: 資料庫 session
+        current_user: 目前使用者 (需為管理者)
         
     Returns:
         DataResponse: 統計資料
@@ -85,6 +98,15 @@ def get_stats(db: Session = Depends(get_db)):
         
         # 查詢憑證數量
         credential_count = db.query(Credential).count()
+        
+        # 記錄操作
+        log = OperationLog(
+            user_id=current_user.id,
+            action="GET_STATS",
+            details="取得系統統計資料",
+        )
+        db.add(log)
+        db.commit()
         
         return DataResponse(
             success=True,
@@ -118,6 +140,7 @@ app.include_router(credential_routes.router, prefix="/api/credentials", tags=["�
 app.include_router(ad_config_routes.router, prefix="/api/ad-config", tags=["AD 設定"])
 app.include_router(log_routes.router, prefix="/api/logs", tags=["操作紀錄"])
 app.include_router(chat_routes.router, prefix="/api", tags=["聊天"])
+app.include_router(user_profile_routes.router, prefix="/api/user-profiles", tags=["使用者個人資料"])
 
 # 啟動事件
 @app.on_event("startup")

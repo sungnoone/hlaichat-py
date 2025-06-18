@@ -5,35 +5,43 @@
 
 # Define environment variable content
 $envContent = @"
-# HLAIChat Project Environment Settings
-# Application Settings
+# HLAIChat 專案環境變數設定
+
+# 應用程式設定
 APP_NAME=HLAIChat
 SECRET_KEY=hl69382361
 DEBUG=True
 HOST=0.0.0.0
 PORT=8000
 RELOAD=True
+# JWT Token 過期時間（分鐘）- 建議範圍：30-120 分鐘
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 
-# Database Settings
+# 資料庫設定
 DATABASE_URL=postgresql://postgres:hl69382361@192.168.1.221:5432/hlaichat-py
 
-# AD Domain Settings
+# AD 網域設定 (基本資訊，實際帳密透過管理介面儲存在資料庫中)
 AD_DOMAIN_NAME=hanlin.com.tw
 AD_PRIMARY_DC=192.168.1.6
 AD_SECONDARY_DCS=192.168.1.5,192.168.5.5
-AD_BIND_USERNAME=
-AD_BIND_PASSWORD=
 
-# Frontend Settings
-VITE_API_BASE_URL=http://localhost:8000
+# 前端設定
+VITE_API_BASE_URL=http://192.168.1.12:8000
 
-# Timezone Settings (Taipei Time)
+# 時區設定 (台北時間)
 TIMEZONE=Asia/Taipei
+
+# 聊天功能逾時設定 (秒)
+CHAT_WEBHOOK_TIMEOUT=300
+CHAT_REQUEST_TIMEOUT=300
+CHAT_CONNECTION_TIMEOUT=300
+
+# 前端聊天逾時設定 (毫秒)
+VITE_CHAT_TIMEOUT=300000
 "@
 
-# Write to .env file with ASCII encoding
-$envContent | Out-File -FilePath ".env" -Encoding ascii -Force
+# Write to .env file with UTF-8 encoding to support Chinese characters
+$envContent | Out-File -FilePath ".env" -Encoding UTF8 -Force
 
 Write-Host "Unified environment .env file generated successfully!"
 Write-Host "Environment setup completed!" 

@@ -11,6 +11,26 @@
       </v-col>
     </v-row>
 
+    <!-- 搜尋欄位 -->
+    <v-row>
+      <v-col cols="12">
+        <v-card class="mb-4">
+          <v-card-text>
+            <v-text-field
+              v-model="search"
+              label="搜尋群組名稱"
+              prepend-inner-icon="mdi-magnify"
+              variant="outlined"
+              density="compact"
+              clearable
+              @input="fetchGroups"
+              @click:clear="fetchGroups"
+            ></v-text-field>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+
     <!-- 群組列表 -->
     <v-row>
       <v-col cols="12">
@@ -357,6 +377,7 @@ export default {
     const groups = ref([])
     const allUsers = ref([])
     const loading = ref(false)
+    const search = ref('')
     const pagination = reactive({
       page: 1,
       totalPages: 1,
@@ -429,13 +450,6 @@ export default {
     
     // 計算顯示的使用者列表
     const displayedUsers = computed(() => {
-      console.log('計算顯示的使用者列表:', {
-        總使用者數量: allUsers.value.length,
-        搜尋條件: usersDialog.search,
-        過濾條件: usersDialog.filter,
-        成員ID列表: usersDialog.memberIds
-      });
-      
       let users = [...allUsers.value];
       
       // 搜尋過濾
@@ -445,16 +459,13 @@ export default {
           user.username.toLowerCase().includes(search) || 
           user.full_name.toLowerCase().includes(search)
         );
-        console.log(`搜尋過濾後剩餘 ${users.length} 個使用者`);
       }
       
       // 成員狀態過濾
       if (usersDialog.filter === 'members') {
         users = users.filter(user => user.is_member);
-        console.log(`僅顯示成員，剩餘 ${users.length} 個使用者`);
       } else if (usersDialog.filter === 'nonmembers') {
         users = users.filter(user => !user.is_member);
-        console.log(`僅顯示非成員，剩餘 ${users.length} 個使用者`);
       }
       
       return users;
@@ -584,14 +595,10 @@ export default {
       usersDialog.memberIds = []; // 重置成員ID列表
       
       try {
-        console.log('開始獲取群組成員:', usersDialog.groupId, usersDialog.groupName);
-        
         // 先獲取所有使用者
         if (allUsers.value.length === 0) {
-          console.log('尚未獲取使用者列表，正在獲取...');
           await fetchAllUsers();
         } else {
-          console.log('重新獲取使用者列表...');
           await fetchAllUsers();
         }
         
@@ -608,13 +615,6 @@ export default {
         const members = group?.users || [];
         usersDialog.memberIds = members.map(user => user.id);
         
-        console.log('群組成員檢查:', {
-          groupId: usersDialog.groupId,
-          groupName: usersDialog.groupName,
-          members: members,
-          memberIds: usersDialog.memberIds
-        });
-        
         // 標記每個使用者是否是群組成員
         allUsers.value = allUsers.value.map(user => ({
           ...user,
@@ -624,37 +624,26 @@ export default {
         
         // 檢查標記後的使用者列表
         const markedMembers = allUsers.value.filter(user => user.is_member);
-        console.log('標記後的成員數量:', markedMembers.length, '標記的成員:', markedMembers);
         
         if (members.length > 0 && markedMembers.length === 0) {
           console.warn('警告: 群組有成員但標記後沒有成員，可能是資料不一致');
-          
-          // 嘗試直接從群組獲取成員資料
           try {
-            const groupResponse = await axios.get(`/api/groups/${usersDialog.groupId}`);
-            if (groupResponse.data.success) {
-              const groupData = groupResponse.data.data;
-              console.log('直接從API獲取的群組資料:', groupData);
-              
+            const response = await axios.get(`/api/groups/${usersDialog.groupId}`);
+            if (response.data.success) {
+              const groupData = response.data.data;
               if (groupData.users && groupData.users.length > 0) {
-                // 更新成員ID列表
                 usersDialog.memberIds = groupData.users.map(user => user.id);
-                
-                // 重新標記使用者
                 allUsers.value = allUsers.value.map(user => ({
                   ...user,
                   is_member: usersDialog.memberIds.includes(user.id),
                   isUpdating: false
                 }));
-                
-                console.log('重新標記後的成員:', allUsers.value.filter(user => user.is_member));
               }
             }
           } catch (error) {
             console.error('獲取群組詳情失敗:', error);
           }
         }
-        
       } catch (error) {
         console.error('獲取群組成員失敗:', error);
         showSnackbar('獲取群組成員失敗', 'error');
@@ -670,75 +659,61 @@ export default {
     }
     
     // 獲取群組列表
-    const fetchGroups = async (page = pagination.page) => {
-      loading.value = true
-      pagination.page = page
-      
+    const fetchGroups = async () => {
+      loading.value = true;
       try {
         const response = await axios.get('/api/groups', {
           params: {
             page: pagination.page,
-            page_size: pagination.itemsPerPage
+            page_size: pagination.itemsPerPage,
+            name: search.value
           }
-        })
+        });
         
         if (response.data.success) {
-          groups.value = response.data.items
-          pagination.totalPages = response.data.total_pages
-          pagination.totalItems = response.data.total
-          
-          console.log('獲取群組列表成功:', {
-            總數量: response.data.total,
-            當前頁碼: response.data.page,
-            總頁數: response.data.total_pages,
-            群組列表: groups.value.map(g => ({
-              id: g.id,
-              name: g.name,
-              成員數量: g.users?.length || 0
-            }))
-          });
+          groups.value = response.data.items;
+          pagination.totalPages = response.data.total_pages;
+          pagination.totalItems = response.data.total;
         }
       } catch (error) {
-        console.error('獲取群組失敗:', error)
-        showSnackbar('獲取群組失敗', 'error')
+        console.error('獲取群組失敗:', error);
+        showSnackbar('獲取群組失敗', 'error');
       } finally {
-        loading.value = false
+        loading.value = false;
       }
-    }
+    };
     
     // 獲取所有使用者
     const fetchAllUsers = async () => {
       try {
-        console.log('開始獲取使用者列表');
         const response = await axios.get('/api/users', {
-          params: { 
+          params: {
             page: 1,
-            page_size: 1000  // 使用後端允許的最大值
+            page_size: 1000
           }
-        })
+        });
         
         if (response.data.success) {
-          allUsers.value = response.data.items
-          console.log(`成功獲取 ${allUsers.value.length} 個使用者`);
+          allUsers.value = response.data.items;
           
-          // 如果總數超過每頁筆數，需要獲取後續頁面的資料
+          // 如果使用者數量超過每頁限制，獲取所有頁面
           if (response.data.total > response.data.page_size) {
             const totalPages = response.data.total_pages;
-            console.log(`使用者數量超過每頁限制，總共有 ${totalPages} 頁`);
             
-            // 獲取後續頁面的資料
             for (let page = 2; page <= totalPages; page++) {
               try {
                 const pageResponse = await axios.get('/api/users', {
-                  params: { page, page_size: 1000 }
+                  params: {
+                    page: page,
+                    page_size: 1000
+                  }
                 });
                 
                 if (pageResponse.data.success) {
                   allUsers.value = [...allUsers.value, ...pageResponse.data.items];
-                  console.log(`已獲取第 ${page}/${totalPages} 頁，目前總共 ${allUsers.value.length} 個使用者`);
                 }
-              } catch (pageError) {
-                console.error(`獲取第 ${page} 頁使用者失敗:`, pageError);
+              } catch (error) {
+                console.error(`獲取第 ${page} 頁使用者失敗:`, error);
               }
             }
           }
@@ -748,6 +723,7 @@ export default {
       } catch (error) {
         console.error('獲取使用者失敗:', error);
         if (error.response) {
+          console.error('錯誤回應:', error.response.data);
           console.error('錯誤詳情:', error.response.data);
           console.error('錯誤狀態:', error.response.status);
           console.error('錯誤標頭:', error.response.headers);
@@ -945,6 +921,7 @@ export default {
     return {
       groups,
       loading,
+      search,
       pagination,
       headers,
       userHeaders,

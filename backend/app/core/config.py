@@ -28,12 +28,10 @@ class Settings(BaseSettings):
     # 資料庫設定
     DATABASE_URL: PostgresDsn
     
-    # AD 網域設定
+    # AD 網域設定 (基本資訊，實際帳密從資料庫讀取)
     AD_DOMAIN_NAME: Optional[str] = None
     AD_PRIMARY_DC: Optional[str] = None
     AD_SECONDARY_DCS: Optional[str] = None
-    AD_BIND_USERNAME: Optional[str] = None
-    AD_BIND_PASSWORD: Optional[str] = None
     
     # 時區設定
     TIMEZONE: str = "Asia/Taipei"
@@ -41,7 +39,7 @@ class Settings(BaseSettings):
     # 聊天功能逾時設定 (秒)
     CHAT_WEBHOOK_TIMEOUT: int = 300
     CHAT_REQUEST_TIMEOUT: int = 300
-    CHAT_CONNECTION_TIMEOUT: int = 60
+    CHAT_CONNECTION_TIMEOUT: int = 300
     
     # 前端設定 (用於整合 .env 檔案)
     VITE_API_BASE_URL: Optional[str] = None

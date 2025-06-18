@@ -78,7 +78,7 @@ def login(
         )
     
     # 建立 JWT token
-    access_token_expires = timedelta(minutes=60)
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.username},
         expires_delta=access_token_expires,
@@ -219,7 +219,7 @@ def ad_login(
         db.commit()
         
         # 建立 JWT token
-        access_token_expires = timedelta(minutes=60)
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             data={"sub": user.username},
             expires_delta=access_token_expires,
@@ -315,7 +315,7 @@ def get_me(
         Token: 使用者資訊
     """
     # 建立 JWT token
-    access_token_expires = timedelta(minutes=60)
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": current_user.username},
         expires_delta=access_token_expires,

@@ -91,6 +91,7 @@ def get_logs(
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=100),
     user_id: Optional[int] = None,
+    username: Optional[str] = None,
     action: Optional[str] = None,
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,
@@ -105,6 +106,7 @@ def get_logs(
         page: 頁碼
         page_size: 每頁筆數
         user_id: 使用者 ID
+        username: 使用者名稱 (模糊搜尋)
         action: 操作類型
         start_date: 開始日期
         end_date: 結束日期
@@ -126,6 +128,8 @@ def get_logs(
     # 套用過濾條件
     if user_id:
         query = query.filter(OperationLog.user_id == user_id)
+    if username:
+        query = query.filter(User.username.ilike(f"%{username}%"))
     if action:
         query = query.filter(OperationLog.action == action)
     if start_date:

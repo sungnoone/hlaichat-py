@@ -7,11 +7,81 @@ from app.apis.deps import get_current_user
 from app.schemas.user_schemas import User
 from app.schemas.chat_schemas import (
     ChatSessionCreate, ChatSessionUpdate, ChatSessionResponse,
-    ChatMessageCreate, ChatSessionListResponse, ChatSessionDetailResponse
+    ChatMessageCreate, ChatSessionListResponse, ChatSessionDetailResponse,
+    EmbeddedChatRequest, WebhookChatRequest, ChatResponse
 )
 from app.services.chat_service import ChatService
 
 router = APIRouter(prefix="/chat", tags=["聊天"])
+
+@router.post("/embedded", response_model=ChatResponse, summary="發送訊息到 Embedded Chat")
+async def send_embedded_message(
+    request: EmbeddedChatRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    發送訊息到 n8n Embedded Chat
+    
+    - **link_id**: 聊天連結ID (必須是 n8n_embedded_chat 類型)
+    - **message**: 使用者訊息內容
+    - **session_id**: 對話 session 唯一識別碼
+    """
+    try:
+        chat_service = ChatService(db)
+        result = await chat_service.send_embedded_message(
+            current_user.id, 
+            request.link_id, 
+            request.message, 
+            request.session_id
+        )
+        return result
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"發送訊息失敗: {str(e)}"
+        )
+
+@router.post("/webhook", response_model=ChatResponse, summary="發送訊息到 Webhook")
+async def send_webhook_message(
+    request: WebhookChatRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    發送訊息到 n8n Webhook
+    
+    - **link_id**: 聊天連結ID (必須是 n8n_webhook 類型)
+    - **message**: 使用者訊息內容
+    - **session_id**: 對話 session 唯一識別碼
+    - **user_id**: 當前登入使用者ID
+    - **user_name**: 使用者姓名
+    """
+    try:
+        chat_service = ChatService(db)
+        result = await chat_service.send_webhook_message(
+            current_user.id,
+            request.link_id,
+            request.message,
+            request.session_id,
+            request.user_name
+        )
+        return result
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"發送訊息失敗: {str(e)}"
+        )
 
 @router.post("/sessions", response_model=ChatSessionResponse, summary="建立新的聊天會話")
 async def create_chat_session(

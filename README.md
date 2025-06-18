@@ -2,6 +2,9 @@
 
 這是一個用於管理各種 AI 聊天流程對話網址的平台，可以依據使用者所屬群組，分配可以使用的聊天網址。
 
+**專案起始日期**：2025年4月15日  
+**最後更新日期**：2025年6月17日
+
 ## 專案目標
 
 本專案旨在創建一個管理平台，管理各個不同用途目的 AI 聊天流程對話網址，並依使用者所屬群組，分配可以使用的聊天網址。具有以下特點：
@@ -11,11 +14,13 @@
 3. **平台群組管理**：管理者可以管理平台群組，設定群組權限。
 4. **憑證管理**：管理者可以管理 API 憑證，用於連接 n8n 或 Flowise 等外部服務。
 5. **AI 聊天流程對話網址管理**：管理者可以管理 AI 聊天流程對話網址，指派群組可以使用的連結。支援多種類型：
-   - **n8n Host Chat**：完整的 n8n 聊天網頁
-   - **n8n Embedded Chat**：可嵌入的 n8n 聊天組件
-   - **n8n Webhook**：透過 webhook 觸發的 n8n 流程，提供仿 ChatGPT 介面
+   - **n8n Host Chat**：完整的 n8n 聊天網頁，另開新分頁導向聊天網址
+   - **n8n Embedded Chat**：在自訂網頁內嵌入 n8n 預設的對話元件
+   - **n8n Webhook**：透過 webhook 觸發的 n8n 流程，提供仿 ChatGPT 介面，包含完整聊天歷史管理
    - **Flowise Chat**：預留支援 Flowise 聊天流程（未來功能）
-6. **仿 ChatGPT 聊天介面**：提供使用者友善的聊天介面，支援 webhook trigger workflow 整合。
+6. **聊天介面設計**：
+   - **Embedded 類型**：簡單的嵌入頁面，直接顯示 n8n 的對話元件
+   - **Webhook 類型**：完整的 ChatGPT 風格聊天介面，包含左側聊天歷史列表、會話管理、訊息歷史等功能
 7. **操作紀錄**：記錄使用者的操作，提供管理者查詢分析。
 
 ## 技術架構
@@ -63,6 +68,7 @@ hlaichat-py/
 │   │   │   └── android-chrome-512x512.png  # Android 大圖示
 │   │   ├── favicon.ico     # 網站圖示
 │   │   ├── logo.png        # 網站 Logo
+│   │   ├── web.config      # IIS URL Rewrite 配置
 │   │   └── site.webmanifest # PWA 網站資訊
 │   ├── src/                # 源代碼
 │   │   ├── assets/         # 靜態資源
@@ -76,122 +82,94 @@ hlaichat-py/
 │   ├── index.html          # HTML 模板
 │   ├── package.json        # 依賴配置
 │   └── vite.config.js      # Vite 配置
+├── scripts/                # 部署和管理腳本
+│   ├── deploy_database.ps1 # 資料庫部署腳本
+│   ├── deploy_backend.ps1  # 後端部署腳本
+│   ├── deploy_frontend.ps1 # 前端部署腳本
+│   ├── deploy_full.ps1     # 一鍵部署腳本
+│   ├── manage_services.ps1 # 服務管理腳本
+│   └── DEPLOYMENT_SCRIPTS.md # 腳本說明文件
 ├── preview-frontend/       # 前端原型
 ├── .env                    # 環境變數
 ├── README.md               # 專案說明
 └── CHANGELOG.md            # 修改歷程
 ```
 
-## 安裝與執行
+## 快速開始
 
-### 後端
+### 方式一：自動化部署（推薦）
 
-1. 安裝 Python 套件：
+本專案提供完整的 PowerShell 部署腳本，支援一鍵部署和分步部署。
 
+#### 🚀 一鍵部署
+```powershell
+# 互動式完整部署
+.\scripts\deploy_full.ps1
+
+# 自動化完整部署
+.\scripts\deploy_full.ps1 -Mode Auto
+
+# 僅部署特定組件
+.\scripts\deploy_full.ps1 -SkipDatabase    # 跳過資料庫
+.\scripts\deploy_full.ps1 -SkipFrontend    # 跳過前端
+```
+
+#### 🔧 分步部署
+```powershell
+# 分步部署（可在不同主機執行）
+.\scripts\deploy_database.ps1     # 部署資料庫
+.\scripts\deploy_backend.ps1      # 部署後端 API
+.\scripts\deploy_frontend.ps1     # 部署前端網站
+
+# 服務管理
+.\scripts\manage_services.ps1     # 服務管理介面
+```
+
+#### 📋 系統需求
+- **作業系統**: Windows Server 2019/2022 或 Windows 10/11
+- **權限**: 管理員權限
+- **軟體**: Python 3.9+, Node.js 16+, PostgreSQL 15+
+
+#### 🏠 主機配置
+| 主機角色 | IP 位址 | 服務 |
+|---------|--------|------|
+| 資料庫主機 | 192.168.1.221 | PostgreSQL (5432) |
+| 後端主機 | 192.168.5.107 | FastAPI (8000) |
+| 前端主機 | 192.168.5.54 | IIS (80) / Node.js (3000) |
+
+詳細說明請參考：
+- [腳本說明文件](scripts/README_SCRIPTS.md)：各個腳本的功能和使用方式
+- [部署說明文件](scripts/DEPLOYMENT.md)：完整的部署指南和系統需求
+
+### 方式二：手動開發環境設定
+
+#### 1. 環境設定
+```bash
+# 複製環境變數範本
+cp env-template.txt .env
+
+# 編輯環境變數
+# 設定資料庫連線、AD 設定等參數
+```
+
+#### 2. 後端啟動
 ```bash
 cd backend
 pip install -r requirements.txt
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-2. 設定環境變數：
-
-可以使用專案提供的腳本自動生成環境變數檔案：
-
-```powershell
-./setup_env.ps1
-```
-
-或手動編輯 `.env` 文件，設定資料庫連線字串和其他參數。**注意：請確保使用 UTF-8 編碼儲存此檔案，避免中文字符顯示亂碼。**
-
-```
-# 資料庫連線設定
-DATABASE_URL=postgresql://postgres:hl69382361@192.168.1.221:5432/hlaichat-py
-
-# 應用程式設定
-APP_NAME=HLAIChat
-SECRET_KEY=your_secret_key
-DEBUG=True
-HOST=0.0.0.0
-PORT=8000
-RELOAD=True
-ACCESS_TOKEN_EXPIRE_MINUTES=60
-
-# AD 網域設定 (若未設定，則不啟用AD驗證)
-AD_DOMAIN_NAME=hanlin.com.tw
-AD_PRIMARY_DC=192.168.1.6
-AD_SECONDARY_DCS=192.168.1.5,192.168.5.5
-AD_BIND_USERNAME=
-AD_BIND_PASSWORD=
-
-# 前端設定
-VITE_API_BASE_URL=http://localhost:8000
-
-# 時區設定 (台北時間)
-TIMEZONE=Asia/Taipei
-```
-
-3. 初始化資料庫：
-
-首次安裝或更新後，需要執行資料庫初始化或遷移：
-
-```bash
-# 初始化資料庫（首次安裝）
-python init_db.py
-
-# 或執行資料庫遷移（更新現有資料庫）
-python migrate_db.py
-
-# 建立聊天相關表格（新功能）
-python migrate_chat_tables.py
-
-# 更新聊天連結類型（重要：支援未來 Flowise 整合）
-python migrate_chat_link_types.py
-
-# 驗證類型系統正確性（可選）
-python test_chat_link_types.py
-```
-
-資料庫遷移腳本會自動：
-- 檢查並建立缺少的表格
-- 新增缺少的欄位
-- 建立必要的索引和外鍵約束
-- 確保資料庫結構與程式碼模型一致
-- 建立聊天會話和訊息相關表格
-
-4. 啟動後端服務：
-
-在 Windows PowerShell 中：
-```powershell
-cd backend
-python -m app.main
-```
-
-在 Linux/macOS 中：
-```bash
-cd backend
-python -m app.main
-```
-
-### 前端
-
-1. 安裝 Node.js 套件：
-
+#### 3. 前端啟動
 ```bash
 cd frontend
 npm install
-```
-
-2. 啟動開發伺服器：
-
-```bash
 npm run dev
 ```
 
-3. 構建生產版本：
-
-```bash
-npm run build
-```
+#### 4. 存取應用程式
+- 前端：http://localhost:5173
+- 後端 API：http://localhost:8000
+- API 文件：http://localhost:8000/docs
 
 ## 聊天連結類型系統
 
@@ -241,32 +219,83 @@ python test_chat_link_types.py
 - API 類型驗證邏輯正確性
 - 舊格式類型被正確拒絕
 
-## 重要設定
+## 環境變數設定
 
-### CORS 設定
+### AD 網域設定
 
-後端已配置 CORS 設定，允許以下來源訪問 API：
-- http://localhost:5173
-- http://localhost:3000
-- http://127.0.0.1:5173
-- http://127.0.0.1:3000
+AD 連線帳密透過管理介面儲存在資料庫中，環境變數只需設定基本網域資訊：
 
-如需添加其他來源，請修改 `backend/app/main.py` 中的 `allow_origins` 參數。
+```env
+# AD 網域設定（基本資訊，實際帳密透過管理介面儲存在資料庫中）
+AD_DOMAIN_NAME=hanlin.com.tw
+AD_PRIMARY_DC=192.168.1.6
+AD_SECONDARY_DCS=192.168.1.5,192.168.5.5
+```
 
-### Token 處理
+### 聊天逾時設定
 
-前端使用 localStorage 存儲 JWT token，並在每次請求時添加到請求頭中。Token 處理邏輯包括：
-- 檢查 token 是否存在
-- 驗證 token 是否過期
-- 處理認證錯誤 (401) 和權限錯誤 (403)
+可透過環境變數調整聊天功能的逾時時間：
 
-### 錯誤處理
+```env
+# 聊天功能逾時設定（秒）
+CHAT_WEBHOOK_TIMEOUT=300      # webhook 讀取逾時（5分鐘）
+CHAT_REQUEST_TIMEOUT=300      # 請求寫入逾時（5分鐘）
+CHAT_CONNECTION_TIMEOUT=60    # 連線建立逾時（1分鐘）
 
-前端已配置全局錯誤處理邏輯，會在控制台輸出詳細的錯誤訊息，並根據錯誤類型執行相應操作：
-- 認證錯誤：重定向到登入頁面
-- 權限錯誤：顯示權限不足訊息
-- 伺服器錯誤：顯示伺服器錯誤訊息
-- 網路錯誤：提示檢查網路連線
+# 前端聊天逾時設定（毫秒）
+VITE_CHAT_TIMEOUT=300000      # 前端 axios 請求逾時（5分鐘）
+```
+
+### JWT Token 設定
+
+可透過環境變數調整 Token 過期時間：
+
+```env
+# JWT Token 設定
+ACCESS_TOKEN_EXPIRE_MINUTES=60    # Token 過期時間（分鐘）
+```
+
+## 部署注意事項
+
+### Vue.js SPA 路由配置
+
+本專案使用 Vue Router 的 History 模式，在 IIS 上部署時需要 `web.config` 檔案支援 URL Rewrite：
+
+```xml
+<!-- frontend/public/web.config -->
+<configuration>
+  <system.webServer>
+    <rewrite>
+      <rules>
+        <rule name="Handle History Mode and hash fallback" stopProcessing="true">
+          <match url="(.*)" />
+          <conditions logicalGrouping="MatchAll">
+            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+          </conditions>
+          <action type="Rewrite" url="/" />
+        </rule>
+      </rules>
+    </rewrite>
+  </system.webServer>
+</configuration>
+```
+
+### Webhook 參數規範
+
+每次向 n8n webhook 發送的 POST 請求包含以下參數：
+
+```json
+{
+  "user_id": "當前登入使用者ID",
+  "session_id": "對話 session 唯一識別碼",
+  "api_key": "選定的 API Key",
+  "message": "使用者輸入的訊息內容",
+  "sequence": "訊息序號（由後端架構維護）",
+  "timestamp": "台北時間戳記",
+  "user_name": "使用者姓名"
+}
+```
 
 ## API 文件
 
@@ -275,6 +304,60 @@ python test_chat_link_types.py
 ```
 http://localhost:8000/docs
 ```
+
+## 安全性
+
+### 權限控制架構
+
+本專案採用多層次的權限控制機制，確保系統安全性：
+
+#### 核心安全機制
+- **JWT Token 驗證**：所有 API 請求都需要有效的 JWT Token
+- **管理者權限檢查**：敏感的管理功能需要管理者權限
+- **群組權限過濾**：使用者只能存取所屬群組有權限的資源
+- **操作日誌記錄**：所有重要操作都會記錄到資料庫
+
+#### 權限分級
+
+**🔴 管理者專用功能**（需要 `get_current_admin_user` 權限）：
+- 使用者管理（建立、修改、刪除使用者）
+- 群組管理（建立、修改、刪除群組）
+- 聊天連結管理（建立、修改、刪除聊天連結）
+- 憑證管理（建立、修改、刪除 API 憑證）
+- AD 設定管理（配置 AD 連線參數）
+- 系統統計資料查看（使用者數量、群組數量等）
+- 全域操作紀錄查看（所有使用者的操作記錄）
+
+**🟡 一般使用者功能**（需要登入驗證）：
+- 查看個人操作紀錄
+- 查看個人聊天紀錄
+- 修改個人密碼
+- 使用有權限的聊天連結
+
+**🟢 群組權限控制**：
+- 使用者只能看到所屬群組有權限的聊天連結
+- 聊天功能需要 `can_use_chat_links` 群組權限
+- 登入功能需要 `can_login` 群組權限
+
+#### 安全修正歷程
+
+**2025年6月3日 - 重要安全修正**：
+- 修正系統統計資料 API 未受保護的問題
+- 修正最近聊天連結 API 權限過寬的問題
+- 強化群組權限過濾機制
+- 新增完整的操作日誌記錄
+
+詳細的安全修正報告請參考：[SECURITY_FIXES_REPORT.md](SECURITY_FIXES_REPORT.md)
+
+#### 安全建議
+
+**目前安全等級**：🟢 **優秀**
+
+**後續改進建議**：
+1. **API Rate Limiting**：考慮加入請求頻率限制
+2. **IP 白名單**：對管理功能加入 IP 限制
+3. **密碼安全性**：目前使用明文密碼，建議後期加入雜湊機制
+4. **Session 管理**：考慮加入 Session 過期和強制登出機制
 
 ## 功能說明
 
@@ -340,12 +423,36 @@ http://localhost:8000/docs
 
 - 設定 AD 連線參數
 - 測試 AD 連線
-- 搜尋 AD 使用者
+- **✅ 已完成**：搜尋 AD 使用者功能，支援多筆結果顯示和詳細資訊
+- **功能特色**：
+  - **多筆搜尋結果**：可同時顯示多個符合條件的 AD 使用者
+  - **詳細使用者資訊**：顯示 AD 使用者的完整資訊，包含：
+    - 👤 使用者帳號 (sAMAccountName)
+    - 📧 電子郵件 (mail)
+    - 🏢 部門 (department)
+    - 💼 職稱 (title)
+    - ℹ️ 描述 (description)
+    - 🏷️ 顯示名稱 (displayName)
+  - **搜尋結果數量控制**：可選擇顯示 10、20、30、40、50 筆搜尋結果
+  - **智慧提醒**：當搜尋結果達到上限時，提醒管理者可能還有更多符合條件的使用者
+  - **視覺化資訊**：使用圖示和標籤清楚區分不同類型的使用者資訊
+  - **詳細資訊卡片**：在加入使用者時顯示完整的 AD 使用者資訊供管理者確認
 
 ### 操作紀錄
 
-- 查詢使用者操作紀錄
-- 依日期、使用者、操作類型等條件搜尋
+- **✅ 已完成**：查詢使用者操作紀錄功能，支援多種搜尋條件
+- **✅ 已完成**：依日期、使用者名稱、操作類型等條件進行搜尋
+- **✅ 已完成**：分頁顯示，支援大量紀錄的高效瀏覽
+- **✅ 已完成**：管理者可查看所有使用者的操作紀錄
+- **✅ 已完成**：一般使用者可查看自己的操作紀錄
+- **✅ 已完成**：支援使用者名稱模糊搜尋功能
+- **✅ 已完成**：操作類型切換時自動重設頁碼，避免參數錯誤
+- **功能特色**：
+  - 即時記錄所有使用者操作，包含登入、登出、資料異動等
+  - 記錄詳細資訊：操作時間、IP 位址、操作詳情
+  - 支援多種操作類型：LOGIN、LOGOUT、CREATE_USER、UPDATE_USER、DELETE_USER、CREATE_GROUP、UPDATE_GROUP、DELETE_GROUP、CREATE_CHAT_LINK、UPDATE_CHAT_LINK、DELETE_CHAT_LINK、USE_CHAT_LINK、SEND_CHAT_MESSAGE、UPDATE_AD_CONFIG 等
+  - 管理者介面提供完整的搜尋和過濾功能
+  - 使用者介面提供個人操作歷程查詢
 
 ### 憑證管理
 
@@ -364,6 +471,25 @@ http://localhost:8000/docs
 - 群組：admins (具有完整管理權限)
 
 ## 常見問題排解
+
+### Vue Router 路由問題 (SPA 404 錯誤)
+
+**問題症狀**：在生產環境中重新整理頁面或直接訪問路由時出現 HTTP 404 錯誤
+
+**問題原因**：
+1. Vue.js 使用 History 模式的 SPA 需要伺服器端配置支援
+2. 部署時遺失 `web.config` 檔案，IIS 無法正確處理路由
+
+**解決方法**：
+- 確認 `frontend/public/web.config` 檔案存在
+- 使用 `.\deploy_frontend.ps1` 腳本進行標準化部署
+- 驗證 `dist/web.config` 在建置後存在
+- 確認 IIS URL Rewrite 模組已安裝
+
+**預防措施**：
+- `web.config` 現已加入版本控制，每次建置自動包含
+- 使用標準化部署腳本避免檔案遺失
+- 部署前檢查清單包含 `web.config` 驗證
 
 ### AD 登入功能問題
 
@@ -592,12 +718,10 @@ ACCESS_TOKEN_EXPIRE_MINUTES=60
 # 資料庫設定
 DATABASE_URL=postgresql://postgres:hl69382361@192.168.1.221:5432/hlaichat-py
 
-# AD 網域設定 (若未設定，則不啟用AD驗證)
+# AD 網域設定 (基本資訊，實際帳密透過管理介面儲存在資料庫中)
 AD_DOMAIN_NAME=hanlin.com.tw
 AD_PRIMARY_DC=192.168.1.6
 AD_SECONDARY_DCS=192.168.1.5,192.168.5.5
-AD_BIND_USERNAME=
-AD_BIND_PASSWORD=
 
 # 前端設定
 VITE_API_BASE_URL=http://localhost:8000
@@ -608,11 +732,31 @@ TIMEZONE=Asia/Taipei
 # 聊天功能逾時設定 (秒)
 CHAT_WEBHOOK_TIMEOUT=300
 CHAT_REQUEST_TIMEOUT=300
-CHAT_CONNECTION_TIMEOUT=60
+CHAT_CONNECTION_TIMEOUT=300
 
 # 前端聊天逾時設定 (毫秒)
 VITE_CHAT_TIMEOUT=300000
 ```
+
+## 重要環境變數說明
+
+### SECRET_KEY
+- **用途**：JWT Token 的加密和解密密鑰
+- **重要性**：確保只有知道密鑰的伺服器才能產生和驗證有效的登入憑證
+- **安全性**：請使用足夠複雜的密鑰，避免使用預設值
+
+### ACCESS_TOKEN_EXPIRE_MINUTES
+- **用途**：設定 JWT Token 的有效期限（分鐘）
+- **預設值**：60 分鐘
+- **彈性調整**：可透過修改此環境變數來調整 token 過期時間，無需修改程式碼
+- **影響範圍**：
+  - 平台帳號登入的 token 過期時間
+  - AD 帳號登入的 token 過期時間
+  - 取得使用者資訊時的 token 更新過期時間
+- **注意事項**：
+  - 時間過短會導致使用者頻繁需要重新登入
+  - 時間過長可能增加安全風險
+  - 建議根據實際使用情況調整（一般建議 30-120 分鐘）
 
 > **注意**：請確保 `.env` 檔案使用正確的編碼儲存，避免中文字符顯示亂碼。
 > 
@@ -620,46 +764,86 @@ VITE_CHAT_TIMEOUT=300000
 
 ## 最新更新
 
-- **2025-05-27**: n8n Webhook 回應解析問題修復
-  - **問題解決**：修復聊天介面顯示 "發生未知錯誤: Expecting value: line 1 column 1 (char 0)" 的問題
-  - **回應格式支援**：優化 webhook 回應處理邏輯，支援多種回應格式（`output`、`message`、`text`、`content`）
-  - **除錯增強**：新增詳細的 webhook 回應日誌記錄，包含原始回應內容、狀態碼和標頭資訊
-  - **錯誤處理改善**：改善 JSON 解析錯誤處理，當無法解析 JSON 時將原始文字作為回應內容
-  - **故障排除文件**：更新 README.md 和測試文件，新增 webhook 回應解析問題的解決方案
-- **2025-05-27**: 聊天逾時設定優化與環境變數修復
-  - **逾時設定優化**：將所有聊天相關的逾時參數移至 `.env` 檔案統一管理
-  - 新增後端逾時參數：`CHAT_WEBHOOK_TIMEOUT`、`CHAT_REQUEST_TIMEOUT`、`CHAT_CONNECTION_TIMEOUT`
-  - 新增前端逾時參數：`VITE_CHAT_TIMEOUT`
-  - 修改後端和前端程式碼使用環境變數中的逾時設定，取代硬編碼的逾時值
-  - 建立詳細的逾時設定說明文件 `CHAT_TIMEOUT_CONFIGURATION.md`
-  - **環境變數修復**：修復 `.env` 檔案中文亂碼問題，使用 UTF-8 編碼重新建立檔案
-  - 改進 README.md 中的編碼問題說明，提供多種解決方案和驗證方法
-  - 確保 n8n workflow 有足夠時間處理複雜的 AI 請求
-- **2025-05-26**: 專案清理和結構優化
-  - 移除冗餘檔案：Python 編譯快取、重複的遷移腳本、重複的文件
-  - 移除 `.gitignore` 檔案，避免妨礙開發中的讀寫動作
-  - 保留除錯用的 console.log 語句以利日後維護
-  - 確保專案結構簡潔但功能完整，符合開發指引要求
-- **2025-05-24**: 聊天連結類型重構，支援未來 Flowise 整合
-  - 重新設計類型命名系統：`host_chat` → `n8n_host_chat`、`embedded_chat` → `n8n_embedded_chat`、`webhook` → `n8n_webhook`
-  - 建立資料庫遷移腳本 `migrate_chat_link_types.py`，成功更新 2 個現有聊天連結
-  - 建立測試腳本 `test_chat_link_types.py` 驗證系統正確性
-  - 更新前後端所有相關的類型檢查和顯示邏輯
-  - 更新測試功能文件，新增類型系統測試指引
-- **2025-05-24**: 完善 webhook trigger workflow 仿 ChatGPT 聊天介面設計
-  - 新增聊天會話和訊息資料模型，建立完整的聊天功能
-  - 實作聊天服務類別，支援會話管理和 webhook 整合
-  - 建立仿 ChatGPT 的前端聊天介面組件
-  - 支援多會話管理、訊息歷程記錄和即時對話
-- **2025-05-23**: 修復憑證服務類別的方法調用問題，確保憑證管理功能完全正常運作
-- **2025-05-23**: 修復資料庫結構不一致問題，建立資料庫遷移腳本自動檢查並新增缺少的欄位
-- **2025-05-23**: 修復前端依賴問題，安裝缺少的 lodash-es 套件，解決 Credentials.vue 中的導入錯誤
-- **2025-05-23**: 完成憑證管理功能開發，包含後端 API 和前端管理介面
-- **2025-05-22**: 修復AD使用者加入平台群組時出現「Field required: password」錯誤，為AD使用者自動生成隨機密碼
-- **2025-05-21**: 修復 AD 帳號登入功能無法被點擊使用的問題，確保 AD 登入功能不受 AD 設定狀態的影響
-- **2025-05-18**: 在 main.js 中引入 Material Design Icons (MDI) 的 CSS 文件，修正不顯示圖示的問題
-- **2025-05-18**: 升級功能圖示，使用更具代表性的圖示並優化展示效果，使側邊欄收合時清晰顯示圖示
-- **2025-05-18**: 修正側邊欄收合後功能圖示不顯示的問題，移除 v-list-item 的 prepend-icon 屬性，改用 v-slot:prepend 顯示圖示
-- **2025-05-17**: 修復後端啟動時的驗證錯誤，在 Settings.Config 中設定 extra = "ignore" 允許額外的環境變數
-- **2025-05-17**: 整合多個 .env 檔案為一個，修改 run.py 和 config.py 以指向根目錄的 .env 檔案
-- **2025-05-17**: 整合環境變數設定到單一 .env 檔案，修改 vite.config.js 使前端從根目錄讀取環境變數
+- **2025-06-01**: 使用者紀錄功能修正與專案清理
+  - **問題修正**：修正使用者無法查看自己操作紀錄的問題，建立專門的使用者個人資料 API 路由
+  - **架構改善**：明確區分管理者專用 API 和使用者個人 API，提升權限控制的精確性
+  - **專案清理**：移除冗餘檔案和除錯程式碼，保持專案結構簡潔
+- **2025-05-27**: 使用者介面優化與簡化
+
+## API 路由結構
+
+### 認證相關
+- `POST /api/auth/login` - 使用者登入
+- `POST /api/auth/logout` - 使用者登出
+- `GET /api/auth/me` - 取得目前使用者資訊
+
+### 管理者專用 API
+- `GET /api/users/` - 取得所有使用者 (管理者)
+- `POST /api/users/` - 建立使用者 (管理者)
+- `PUT /api/users/{user_id}` - 更新使用者 (管理者)
+- `DELETE /api/users/{user_id}` - 刪除使用者 (管理者)
+- `GET /api/groups/` - 群組管理 (管理者)
+- `GET /api/chat-links/` - 聊天連結管理 (管理者)
+- `GET /api/logs/` - 操作紀錄查詢 (管理者)
+
+### 使用者個人 API
+- `GET /api/user-profiles/operation-logs` - 取得自己的操作紀錄
+- `GET /api/user-profiles/chat-history` - 取得自己的聊天紀錄
+- `PUT /api/users/me/password` - 更新自己的密碼
+
+### 聊天功能
+- `GET /api/chat-links/{chat_link_id}` - 取得聊天連結 (使用者)
+- `POST /api/chat/webhook` - Webhook 聊天
+- `POST /api/chat/embedded` - Embedded 聊天
+
+## 專業部署腳本系統
+
+本專案提供完整的 PowerShell 部署腳本系統，支援一鍵部署和細分管理：
+
+### 部署腳本功能
+
+- **`deploy_full.ps1`**：一鍵部署整個專案，支援多主機和單機部署
+- **`deploy_database.ps1`**：資料庫主機 PostgreSQL 安裝和設定
+- **`deploy_backend.ps1`**：後端主機 Python 環境和 FastAPI 服務部署
+- **`deploy_frontend.ps1`**：前端主機 Node.js 環境和 Vue.js 應用部署
+- **`manage_services.ps1`**：統一管理所有服務的啟停和狀態監控
+
+### 腳本特色
+
+- **完整繁體中文註解**：所有腳本都包含詳細的中文說明
+- **錯誤處理機制**：自動檢查前置條件和安裝狀態
+- **進度顯示**：使用彩色輸出顯示執行步驟和結果
+- **參數化配置**：支援自定義主機位址、路徑等參數
+- **安全檢查**：管理員權限驗證和操作確認提示
+
+### 使用範例
+
+```powershell
+# 一鍵部署所有服務（單機環境）
+.\scripts\deploy_full.ps1 -Target all
+
+# 分步部署（多主機環境）
+.\scripts\deploy_database.ps1 -DatabaseHost "acmdb1.hanlin.com.tw"
+.\scripts\deploy_backend.ps1 -BackendHost "acmback1.hanlin.com.tw"
+.\scripts\deploy_frontend.ps1 -FrontendHost "acm1.hanlin.com.tw"
+
+# 服務管理
+.\scripts\manage_services.ps1 -Action status    # 查看所有服務狀態
+.\scripts\manage_services.ps1 -Action restart   # 重啟所有服務
+```
+
+詳細說明請參考：
+- [部署文件](DEPLOYMENT.md)：完整的部署指南和系統需求
+- [腳本說明](scripts/README.md)：各個腳本的詳細功能和使用方式
+
+### 傳統手動部署注意事項
+
+如果仍使用手動部署方式，請注意以下事項：
+
+- 修改 `.env`（API 位置等）後，必須重新 build 前端並重新部署 `dist` 內容
+- `.env` 檔案僅需放在專案根目錄，Vite 會自動讀取，無需複製到 frontend/ 目錄
+- 若遇到 Vite 無法讀取 .env，請檢查 vite.config.js 的 envDir 設定是否正確指向根目錄
+- 後端 CORS 設定需允許前端實際網域
+- 若遇到 `No 'Access-Control-Allow-Origin' header` 或 `ERR_NETWORK`，請檢查 CORS 與 API 位置設定
+
+**建議**：使用上述專業部署腳本可自動處理這些設定，避免手動設定的錯誤。

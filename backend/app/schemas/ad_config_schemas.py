@@ -55,15 +55,18 @@ class ADUserSearch(BaseModel):
     AD 使用者搜尋請求模型
     """
     search_term: str
-    max_results: int = 10
+    max_results: int = 50
 
 # AD 使用者模型
 class ADUser(BaseModel):
     """
     AD 使用者模型
     """
-    username: str
-    full_name: str
-    email: Optional[str] = None
-    department: Optional[str] = None
-    guid: str
+    username: str  # sAMAccountName
+    full_name: str  # cn (Common Name)
+    display_name: Optional[str] = None  # displayName
+    email: Optional[str] = None  # mail
+    department: Optional[str] = None  # department
+    description: Optional[str] = None  # description
+    title: Optional[str] = None  # title (職稱)
+    guid: str  # objectGUID

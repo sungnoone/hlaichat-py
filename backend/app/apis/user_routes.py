@@ -4,7 +4,7 @@ from typing import List, Optional
 import logging
 
 from app.db.database import get_db
-from app.db.models import User, Group, OperationLog
+from app.db.models import User, Group, OperationLog, ChatSession, ChatMessage, ChatLink
 from app.schemas.user_schemas import User as UserSchema, UserCreate, UserUpdate, UserUpdatePassword
 from app.schemas.common_schemas import ResponseBase, DataResponse, PaginatedResponse
 from app.apis.deps import get_current_user, get_current_admin_user
@@ -468,70 +468,3 @@ def update_my_password(
         success=True,
         message="更新密碼成功",
     )
-
-# 取得自己的操作紀錄
-@router.get("/operation-logs", response_model=DataResponse[List[dict]])
-def get_my_operation_logs(
-    request: Request,
-    limit: int = Query(10, ge=1, le=50),
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    取得自己的操作紀錄
-    
-    Args:
-        request: 請求物件
-        limit: 回傳筆數上限
-        current_user: 目前使用者
-        db: 資料庫 session
-        
-    Returns:
-        DataResponse[List[dict]]: 操作紀錄列表
-    """
-    try:
-        # 建立查詢
-        query = db.query(
-            OperationLog,
-            User.username.label("user_username"),
-            User.full_name.label("user_full_name")
-        ).join(
-            User, OperationLog.user_id == User.id
-        )
-        
-        # 只查詢自己的操作紀錄
-        query = query.filter(OperationLog.user_id == current_user.id)
-        
-        # 排序並限制筆數
-        query = query.order_by(OperationLog.timestamp.desc()).limit(limit)
-        
-        # 取得操作紀錄列表
-        results = query.all()
-        
-        # 處理查詢結果
-        logs = []
-        for log, user_username, user_full_name in results:
-            log_dict = {
-                "id": log.id,
-                "user_id": log.user_id,
-                "action": log.action,
-                "details": log.details,
-                "ip_address": log.ip_address,
-                "timestamp": log.timestamp,
-                "user_username": user_username,
-                "user_full_name": user_full_name
-            }
-            logs.append(log_dict)
-        
-        return DataResponse(
-            success=True,
-            message="取得操作紀錄成功",
-            data=logs
-        )
-    except Exception as e:
-        logger.error(f"取得操作紀錄失敗: {e}", exc_info=True)
-        return DataResponse(
-            success=False,
-            message=f"取得操作紀錄失敗: {str(e)}",
-            data=[]
-        )

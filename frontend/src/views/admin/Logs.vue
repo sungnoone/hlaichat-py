@@ -33,7 +33,7 @@
               density="compact"
               hide-details
               class="mb-3 mb-md-0"
-              @update:model-value="fetchLogs"
+              @update:model-value="onActionChange"
             ></v-select>
           </v-col>
           <v-col cols="12" md="2">
@@ -148,12 +148,18 @@ export default {
       { title: '更新聊天連結', value: 'UPDATE_CHAT_LINK' },
       { title: '刪除聊天連結', value: 'DELETE_CHAT_LINK' },
       { title: '使用聊天連結', value: 'USE_CHAT_LINK' },
+      { title: '發送聊天訊息', value: 'SEND_CHAT_MESSAGE' },
       { title: '更新 AD 設定', value: 'UPDATE_AD_CONFIG' }
     ]
     
     // 獲取操作紀錄
-    const fetchLogs = async (page = pagination.page) => {
+    const fetchLogs = async (page = null) => {
       loading.value = true
+      
+      // 確保 page 參數有效
+      if (page === null || page === undefined || page === '') {
+        page = 1
+      }
       pagination.page = page
       
       try {
@@ -162,12 +168,13 @@ export default {
           page_size: pagination.itemsPerPage
         }
         
-        if (search.username) {
-          params.username = search.username
+        // 只有當搜尋條件不為空時才加入參數
+        if (search.username && search.username.trim()) {
+          params.username = search.username.trim()
         }
         
-        if (search.action) {
-          params.action = search.action
+        if (search.action && search.action.trim()) {
+          params.action = search.action.trim()
         }
         
         const response = await axios.get('/api/logs', { params })
@@ -188,6 +195,7 @@ export default {
     const resetSearch = () => {
       search.username = ''
       search.action = ''
+      pagination.page = 1  // 重設頁碼
       fetchLogs(1)
     }
     
@@ -206,6 +214,7 @@ export default {
         'UPDATE_CHAT_LINK': 'info',
         'DELETE_CHAT_LINK': 'error',
         'USE_CHAT_LINK': 'secondary',
+        'SEND_CHAT_MESSAGE': 'secondary',
         'UPDATE_AD_CONFIG': 'warning'
       }
       return actionColors[action] || 'secondary'
@@ -235,6 +244,12 @@ export default {
       }).format(date)
     }
     
+    // 當操作類型變更時重設頁碼到第一頁
+    const onActionChange = () => {
+      pagination.page = 1
+      fetchLogs(1)
+    }
+    
     onMounted(() => {
       fetchLogs()
     })
@@ -250,7 +265,8 @@ export default {
       resetSearch,
       getActionColor,
       getUserInitials,
-      formatDateTime
+      formatDateTime,
+      onActionChange
     }
   }
 }

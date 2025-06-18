@@ -7,11 +7,12 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc, and_
 import httpx
 
-from app.db.models import ChatSession, ChatMessage, ChatLink, User
+from app.db.models import ChatSession, ChatMessage, ChatLink, User, OperationLog
 from app.schemas.chat_schemas import (
     ChatSessionCreate, ChatSessionUpdate, ChatSessionResponse,
     ChatMessageCreate, ChatMessageResponse, WebhookRequest,
-    ChatSessionListResponse, ChatMessageListResponse, ChatSessionDetailResponse
+    ChatSessionListResponse, ChatMessageListResponse, ChatSessionDetailResponse,
+    ChatResponse
 )
 from app.core.config import settings
 
@@ -20,6 +21,142 @@ class ChatService:
     
     def __init__(self, db: Session):
         self.db = db
+    
+    async def send_embedded_message(self, user_id: int, link_id: int, message: str, session_id: str) -> ChatResponse:
+        """
+        發送訊息到 n8n Embedded Chat
+        
+        注意：embedded 類型的聊天連結應該直接使用 n8n 提供的嵌入式對話元件，
+        不需要透過此 API 處理訊息。此 API 僅用於錯誤處理和權限檢查。
+        """
+        # 檢查聊天連結是否存在且為 embedded 類型
+        chat_link = self.db.query(ChatLink).filter(ChatLink.id == link_id).first()
+        if not chat_link:
+            raise ValueError("聊天連結不存在")
+        if chat_link.link_type != "n8n_embedded_chat":
+            raise ValueError("此聊天連結不是 n8n Embedded Chat 類型")
+        
+        # 檢查使用者是否有權限使用此聊天連結
+        user = self.db.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise ValueError("使用者不存在")
+        
+        # 檢查使用者群組權限
+        user_group_ids = [group.id for group in user.groups]
+        chat_link_group_ids = [group.id for group in chat_link.groups]
+        
+        if not any(group_id in chat_link_group_ids for group_id in user_group_ids):
+            raise ValueError("您沒有權限使用此聊天連結")
+        
+        # 對於 embedded 類型，返回錯誤訊息，因為應該直接使用 n8n 的嵌入元件
+        return ChatResponse(
+            success=False,
+            response="Embedded 類型的聊天連結應該直接使用 n8n 提供的嵌入式對話元件，不需要透過此 API 處理。",
+            processing_time=0,
+            error="embedded_chat_not_supported"
+        )
+
+    async def send_webhook_message(self, user_id: int, link_id: int, message: str, session_id: str, user_name: str) -> ChatResponse:
+        """發送訊息到 n8n Webhook"""
+        # 檢查聊天連結是否存在且為 webhook 類型
+        chat_link = self.db.query(ChatLink).filter(ChatLink.id == link_id).first()
+        if not chat_link:
+            raise ValueError("聊天連結不存在")
+        if chat_link.link_type != "n8n_webhook":
+            raise ValueError("此聊天連結不是 n8n Webhook 類型")
+        if not chat_link.webhook_url:
+            raise ValueError("聊天連結未設定 webhook 網址")
+        
+        # 檢查使用者是否有權限使用此聊天連結
+        user = self.db.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise ValueError("使用者不存在")
+        
+        # 檢查使用者群組權限
+        user_group_ids = [group.id for group in user.groups]
+        chat_link_group_ids = [group.id for group in chat_link.groups]
+        
+        if not any(group_id in chat_link_group_ids for group_id in user_group_ids):
+            raise ValueError("您沒有權限使用此聊天連結")
+        
+        # 準備 webhook 請求
+        webhook_data = WebhookRequest(
+            user_id=user_id,
+            session_id=session_id,
+            api_key=chat_link.credential.api_key if chat_link.credential else "",
+            message=message,
+            sequence=1,  # 簡化版本，不維護序號
+            timestamp=settings.get_taipei_now().isoformat(),
+            user_name=user_name
+        )
+        
+        start_time = time.time()
+        
+        try:
+            # 使用環境變數中的逾時設定
+            timeout_config = httpx.Timeout(
+                connect=settings.CHAT_CONNECTION_TIMEOUT,
+                read=settings.CHAT_WEBHOOK_TIMEOUT,
+                write=settings.CHAT_REQUEST_TIMEOUT,
+                pool=settings.CHAT_REQUEST_TIMEOUT
+            )
+            
+            async with httpx.AsyncClient(timeout=timeout_config) as client:
+                response = await client.post(
+                    chat_link.webhook_url,
+                    json=webhook_data.dict(),
+                    headers={"Content-Type": "application/json"}
+                )
+                response.raise_for_status()
+                
+                processing_time = int((time.time() - start_time) * 1000)
+                
+                # 嘗試解析 JSON
+                try:
+                    response_data = response.json()
+                except json.JSONDecodeError:
+                    # 如果無法解析 JSON，將原始文字作為回應內容
+                    response_data = {"output": response.text}
+                
+                # 嘗試從不同的欄位取得回應內容
+                ai_content = (
+                    response_data.get("output") or 
+                    response_data.get("message") or 
+                    response_data.get("text") or 
+                    response_data.get("content") or
+                    "無回應內容"
+                )
+                
+                return ChatResponse(
+                    success=True,
+                    response=ai_content,
+                    processing_time=processing_time
+                )
+                
+        except httpx.TimeoutException:
+            processing_time = int((time.time() - start_time) * 1000)
+            return ChatResponse(
+                success=False,
+                response="請求逾時，請稍後再試。",
+                processing_time=processing_time,
+                error="timeout"
+            )
+        except httpx.HTTPStatusError as e:
+            processing_time = int((time.time() - start_time) * 1000)
+            return ChatResponse(
+                success=False,
+                response=f"伺服器回應錯誤 ({e.response.status_code})，請稍後再試。",
+                processing_time=processing_time,
+                error=f"http_error_{e.response.status_code}"
+            )
+        except Exception as e:
+            processing_time = int((time.time() - start_time) * 1000)
+            return ChatResponse(
+                success=False,
+                response="發生未知錯誤，請稍後再試。",
+                processing_time=processing_time,
+                error=str(e)
+            )
     
     def create_session(self, user_id: int, session_data: ChatSessionCreate) -> ChatSessionResponse:
         """建立新的聊天會話"""
@@ -178,6 +315,16 @@ class ChatService:
         self.db.add(user_message)
         self.db.commit()
         self.db.refresh(user_message)
+        
+        # 記錄聊天操作
+        operation_log = OperationLog(
+            user_id=user_id,
+            action="SEND_CHAT_MESSAGE",
+            details=f"發送聊天訊息 (聊天連結: {chat_link.name}, 會話: {session_id[:8]}...)",
+            ip_address=None  # 在服務層無法取得 IP，可在 API 層傳入
+        )
+        self.db.add(operation_log)
+        self.db.commit()
         
         # 準備 webhook 請求
         webhook_data = WebhookRequest(
